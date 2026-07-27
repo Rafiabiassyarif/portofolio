@@ -59,6 +59,15 @@ export default function CustomFeatureDetailPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  
+  const [isTextMode, setIsTextMode] = useState(false);
+  const [textContentId, setTextContentId] = useState("");
+  const [textContentEn, setTextContentEn] = useState("");
+  const [textImageUrl, setTextImageUrl] = useState("");
+  const [textLinkUrl, setTextLinkUrl] = useState("");
+  const [textLinkTextId, setTextLinkTextId] = useState("");
+  const [textLinkTextEn, setTextLinkTextEn] = useState("");
+  const [uploadingTextImage, setUploadingTextImage] = useState(false);
 
   const fetchSectionData = async () => {
     try {
@@ -73,11 +82,27 @@ export default function CustomFeatureDetailPage() {
             const parsed = JSON.parse(currentSection.contentId);
             if (Array.isArray(parsed)) {
               setItems(parsed);
+              setIsTextMode(false);
+            } else if (parsed && typeof parsed === 'object') {
+              setItems([]);
+              setIsTextMode(true);
+              setTextContentId(parsed.textId || "");
+              setTextContentEn(parsed.textEn || "");
+              setTextImageUrl(parsed.imageUrl || "");
+              setTextLinkUrl(parsed.linkUrl || "");
+              setTextLinkTextId(parsed.linkTextId || "");
+              setTextLinkTextEn(parsed.linkTextEn || "");
             } else {
               setItems([]);
+              setIsTextMode(true);
+              setTextContentId(currentSection.contentId);
+              setTextContentEn(currentSection.contentEn);
             }
           } catch {
             setItems([]);
+            setIsTextMode(true);
+            setTextContentId(currentSection.contentId);
+            setTextContentEn(currentSection.contentEn);
           }
         }
       }
@@ -189,15 +214,139 @@ export default function CustomFeatureDetailPage() {
                 Custom Feature
               </span>
             </div>
-            <p className="text-muted-foreground text-sm">Kelola daftar item untuk section ini.</p>
+            <p className="text-muted-foreground text-sm">
+              {isTextMode ? 'Edit teks untuk section ini.' : 'Kelola daftar item untuk section ini.'}
+            </p>
           </div>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
-          <Plus className="w-4 h-4" /> Tambah Item
-        </button>
+        {!isTextMode && (
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
+            <Plus className="w-4 h-4" /> Tambah Item
+          </button>
+        )}
       </div>
 
-      {items.length === 0 ? (
+      {isTextMode ? (
+        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Teks (Indonesian)</label>
+              <textarea
+                value={textContentId}
+                onChange={(e) => setTextContentId(e.target.value)}
+                rows={8}
+                placeholder="Masukkan deskripsi teks..."
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all resize-none"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Teks (English)</label>
+              <textarea
+                value={textContentEn}
+                onChange={(e) => setTextContentEn(e.target.value)}
+                rows={8}
+                placeholder="Enter text description..."
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all resize-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Link Tautan (Opsional)</label>
+              <input
+                type="text"
+                value={textLinkUrl}
+                onChange={(e) => setTextLinkUrl(e.target.value)}
+                placeholder="https://..."
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Gambar (Opsional)</label>
+              <div className="flex items-center gap-3">
+                <label className={`cursor-pointer px-4 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all ${uploadingTextImage ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  {uploadingTextImage ? 'Loading...' : 'Upload Foto'}
+                  <input type="file" accept="image/*" className="hidden" disabled={uploadingTextImage} onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploadingTextImage(true);
+                    try {
+                      const fd = new FormData(); fd.append('image', file);
+                      const res = await api.uploadImage(fd, token!);
+                      if (res.imageUrl) setTextImageUrl(res.imageUrl);
+                    } catch {
+                      alert('Gagal mengunggah foto.');
+                    } finally {
+                      setUploadingTextImage(false);
+                    }
+                  }} />
+                </label>
+                {textImageUrl && (
+                  <div className="flex items-center gap-2">
+                    <img src={textImageUrl.startsWith('http') || textImageUrl.startsWith('data:') ? textImageUrl : `${API_URL}${textImageUrl}`} alt="preview" className="h-12 w-12 rounded-lg object-cover border border-border" />
+                    <button type="button" onClick={() => setTextImageUrl('')} className="text-red-400 hover:text-red-300 text-sm">Hapus</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Label Tombol Link (Indonesian)</label>
+              <input
+                type="text"
+                value={textLinkTextId}
+                onChange={(e) => setTextLinkTextId(e.target.value)}
+                placeholder="Pelajari Lebih Lanjut"
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Label Tombol Link (English)</label>
+              <input
+                type="text"
+                value={textLinkTextEn}
+                onChange={(e) => setTextLinkTextEn(e.target.value)}
+                placeholder="Learn More"
+                className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={async () => {
+              setSaving(true);
+              try {
+                const textData = JSON.stringify({
+                  textId: textContentId,
+                  textEn: textContentEn,
+                  imageUrl: textImageUrl,
+                  linkUrl: textLinkUrl,
+                  linkTextId: textLinkTextId,
+                  linkTextEn: textLinkTextEn,
+                });
+                await api.updateCustomSection(section.id, {
+                  contentId: textData,
+                  contentEn: textData,
+                }, token!);
+                window.dispatchEvent(new Event('custom-sections-updated'));
+                alert('Teks berhasil disimpan!');
+              } catch (e) {
+                alert('Gagal menyimpan teks.');
+              } finally {
+                setSaving(false);
+              }
+            }}
+            disabled={saving}
+            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground font-semibold transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+          >
+            {saving ? <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? 'Menyimpan...' : 'Simpan Teks'}
+          </button>
+        </div>
+      ) : items.length === 0 ? (
         <div className="text-center py-20 bg-muted border border-dashed border-border rounded-2xl">
           <div className="text-4xl mb-3">📋</div>
           <p className="text-muted-foreground text-sm">Belum ada item ditambahkan ke {section.titleId}.</p>

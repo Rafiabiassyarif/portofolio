@@ -33,7 +33,7 @@ export function ProjectsSection() {
           PORTFOLIO
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-          /SELECTED WORK
+          SELECTED WORK
         </h2>
       </div>
 

@@ -3,6 +3,7 @@ import { useContent } from "../context/ContentContext";
 import { api, API_URL } from "../lib/api";
 import { useLanguage } from "../context/LanguageContext";
 import { motion } from "motion/react";
+import { Briefcase, Calendar } from "lucide-react";
 
 export function Experience() {
   const { content: t } = useContent();
@@ -42,58 +43,90 @@ export function Experience() {
           EXPERIENCE
         </h1>
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center md:items-end gap-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground">
-            /EXPERIENCE
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
+            EXPERIENCE
           </h2>
-          <span className="text-sm font-semibold text-muted-foreground">
-            {allExperiences.length}+ years of experience
-          </span>
         </div>
       </div>
 
-      <div className="bg-[#1a1a1a] rounded-[2rem] p-8 md:p-16 text-white overflow-hidden relative">
-        <div className="relative z-10 flex flex-col">
+      <div className="relative max-w-5xl mx-auto mt-12">
+        {/* Timeline line */}
+        <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border to-transparent md:-translate-x-[0.5px]"></div>
+
+        <div className="space-y-12 md:space-y-24">
           {allExperiences.map((exp, idx) => {
             const isHovered = hoveredIndex === idx;
+            const isEven = idx % 2 === 0;
 
             return (
-              <div
-                key={idx}
-                className="group relative border-b border-white/10 py-8 md:py-10 transition-colors duration-300 hover:bg-white/5 px-4 md:px-6 -mx-4 md:-mx-6 rounded-xl"
+              <motion.div 
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                key={idx} 
+                className={`relative flex flex-col md:flex-row ${isEven ? 'md:flex-row-reverse' : ''} items-start md:items-center gap-8 md:gap-16`}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div>
-                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2">{exp.company}</h3>
-                    <p className="text-white/60 mb-2">{exp.role}</p>
-                    {exp.description && <p className="text-white/40 text-sm max-w-2xl">{exp.description}</p>}
-                  </div>
-                  <div className="text-white/50 text-sm md:text-base whitespace-nowrap">
-                    {exp.period}
+                {/* Timeline Node */}
+                <div 
+                  className={`absolute left-4 md:left-1/2 w-5 h-5 rounded-full border-4 shadow-lg -translate-x-1/2 mt-7 md:mt-0 z-10 transition-all duration-500
+                    ${isHovered 
+                      ? 'bg-foreground border-background scale-125 shadow-foreground/50' 
+                      : 'bg-background border-foreground shadow-foreground/20'}`}
+                />
+
+                {/* Date for Desktop (opposite side of card) */}
+                <div className={`hidden md:flex flex-1 ${isEven ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`transition-all duration-500 ${isHovered ? 'opacity-100 scale-105' : 'opacity-60'}`}>
+                    <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold tracking-wider ${isHovered ? 'bg-foreground/10 text-foreground' : 'bg-secondary text-secondary-foreground'}`}>
+                      <Calendar className="w-4 h-4" />
+                      {exp.period}
+                    </span>
                   </div>
                 </div>
 
-                {/* Floating Preview (Aesthetic mockup feature) */}
-                <motion.div
-                  initial={false}
-                  animate={{
-                    opacity: isHovered ? 1 : 0,
-                    scale: isHovered ? 1 : 0.8,
-                    rotate: isHovered ? -5 : 0
-                  }}
-                  className="absolute left-[60%] top-1/2 -translate-y-1/2 pointer-events-none hidden lg:block z-50 origin-center"
-                >
-                  <div className="w-48 h-32 bg-white/90 rounded-2xl shadow-2xl p-1.5 flex items-center justify-center opacity-90 border border-white/20 overflow-hidden">
-                    {exp.imageUrl ? (
-                      <img src={`${API_URL}${exp.imageUrl}`} alt={exp.company} className="w-full h-full object-cover rounded-xl" />
-                    ) : (
-                      <span className="font-bold text-xs text-black">{exp.company}</span>
-                    )}
+                {/* Card Content */}
+                <div className="flex-1 w-full pl-12 md:pl-0">
+                  <div className={`group relative p-6 md:p-8 rounded-3xl bg-card border border-border hover:border-foreground/30 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden ${isHovered ? '-translate-y-1' : ''}`}>
+                    {/* Subtle background glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+                    
+                    <div className="relative z-10">
+                      {/* Mobile Date */}
+                      <span className="md:hidden inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-secondary/50 text-secondary-foreground text-xs font-bold tracking-wider">
+                        <Calendar className="w-3 h-3" />
+                        {exp.period}
+                      </span>
+                      
+                      <div className="flex flex-col gap-1 mb-4">
+                        <h3 className="text-2xl md:text-3xl font-bold text-foreground group-hover:text-foreground/80 transition-colors flex items-center gap-3">
+                           <div className="p-2 rounded-xl bg-foreground/10 text-foreground hidden sm:block">
+                            <Briefcase className="w-5 h-5" />
+                           </div>
+                           {exp.company}
+                        </h3>
+                        <p className="text-lg text-muted-foreground font-medium sm:ml-12">{exp.role}</p>
+                      </div>
+                      
+                      {exp.description && (
+                        <p className="text-muted-foreground/80 leading-relaxed sm:ml-12">
+                          {exp.description}
+                        </p>
+                      )}
+
+                      {/* Optional Image */}
+                      {exp.imageUrl && (
+                        <div className="mt-6 sm:ml-12 overflow-hidden rounded-xl h-48 border border-border/50">
+                           <img src={`${API_URL}${exp.imageUrl}`} alt={exp.company} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </motion.div>
-              </div>
-            );
+                </div>
+              </motion.div>
+            )
           })}
         </div>
       </div>

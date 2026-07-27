@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Pencil, Trash2, X, Save, Eye, EyeOff, LayoutGrid, Type } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface CustomSection {
@@ -229,7 +229,7 @@ export default function CustomSectionsPage() {
                     <span className="px-2 py-1 rounded-md text-xs bg-indigo-500/10 text-indigo-400 font-medium">Nav: {item.navLabelId} / {item.navLabelEn}</span>
                   </div>
                   <p className="text-muted-foreground text-sm mt-3 line-clamp-2">
-                    {item.contentId.startsWith('[') ? '[Daftar Kartu Grid]' : item.contentId}
+                    {item.contentId.startsWith('[') ? '[Daftar Kartu Grid]' : (item.contentId.startsWith('{') ? '[Konten Teks & Media]' : item.contentId)}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
@@ -325,9 +325,10 @@ export default function CustomSectionsPage() {
 
                 {/* Conditional Content Input */}
                 {sectionType === 'text' ? (
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase block mb-1.5">Isi Teks Paragraf ({formLanguage.toUpperCase()})</label>
-                    <textarea value={formLanguage === 'id' ? form.contentId : form.contentEn} onChange={e => setForm(p => ({ ...p, [formLanguage === 'id' ? 'contentId' : 'contentEn']: e.target.value }))} placeholder="Masukkan deskripsi di sini..." required rows={6} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all resize-none" />
+                  <div className="bg-muted border border-dashed border-border rounded-xl p-6 text-center">
+                    <p className="text-muted-foreground text-sm">
+                      Untuk mengedit konten mode <strong>Teks Bebas</strong> beserta foto & link tautan, silakan <strong>simpan bagian ini terlebih dahulu</strong>, lalu buka dari menu <strong className="text-indigo-400">Custom Features</strong> di sidebar sebelah kiri.
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -382,7 +383,7 @@ export default function CustomSectionsPage() {
                                   {gItem.imageUrl ? (
                                     <div className="flex items-center gap-2 flex-1">
                                       <div className="h-full w-12 rounded overflow-hidden bg-muted flex-shrink-0 border border-border">
-                                        <img src={gItem.imageUrl} alt="preview" className="w-full h-full object-cover" />
+                                        <img src={gItem.imageUrl.startsWith('http') || gItem.imageUrl.startsWith('data:') ? gItem.imageUrl : `${API_URL}${gItem.imageUrl}`} alt="preview" className="w-full h-full object-cover" />
                                       </div>
                                       <button type="button" onClick={() => updateGridItem(gItem.id, 'imageUrl', '')} className="text-red-400 hover:text-red-300 text-xs">Hapus</button>
                                     </div>

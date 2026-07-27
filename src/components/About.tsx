@@ -17,7 +17,7 @@ export function About() {
           ABOUT
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-          /ABOUT ME
+          ABOUT ME
         </h2>
       </div>
       
