@@ -59,6 +59,7 @@ export default function CustomSectionsPage() {
 
   const [sectionType, setSectionType] = useState<'text' | 'grid'>('text');
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
+  const [uploadingImage, setUploadingImage] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -137,6 +138,23 @@ export default function CustomSectionsPage() {
 
   const removeGridItem = (id: string) => {
     setGridItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, itemId: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append('image', file);
+    setUploadingImage(itemId);
+    try {
+      const res = await api.uploadImage(fd, token!);
+      updateGridItem(itemId, 'imageUrl', res.imageUrl);
+    } catch (err) {
+      alert('Gagal mengunggah foto');
+    } finally {
+      setUploadingImage(null);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -248,8 +266,8 @@ export default function CustomSectionsPage() {
                     <input type="text" value={form.slug} onChange={e => setForm(p => ({ ...p, slug: e.target.value.replace(/\s+/g, '-').toLowerCase() }))} placeholder="misal: layanan-saya" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase block mb-1.5">Icon Judul (Opsional)</label>
-                    <input type="text" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="misal: Star" className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase block mb-1.5">Icon Judul (Nama Lucide ATAU Link URL, Opsional)</label>
+                    <input type="text" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="misal: Star, Code, atau https://.../icon.svg" className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all" />
                   </div>
                 </div>
 
@@ -355,8 +373,23 @@ export default function CustomSectionsPage() {
                                 <input type="text" value={gItem.linkUrl || ''} onChange={e => updateGridItem(gItem.id, 'linkUrl', e.target.value)} placeholder="https://..." className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none" />
                               </div>
                               <div>
-                                <label className="text-[10px] text-muted-foreground uppercase block mb-1">URL Gambar / Foto (Opsional)</label>
-                                <input type="text" value={gItem.imageUrl || ''} onChange={e => updateGridItem(gItem.id, 'imageUrl', e.target.value)} placeholder="https://..." className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none" />
+                                <label className="text-[10px] text-muted-foreground uppercase block mb-1">Gambar / Foto (Opsional)</label>
+                                <div className="flex items-center gap-2 h-[34px]">
+                                  <label className={`flex-shrink-0 cursor-pointer flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-foreground px-3 h-full rounded-lg text-xs font-semibold transition-colors ${uploadingImage === gItem.id ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                    {uploadingImage === gItem.id ? 'Loading...' : 'Upload Foto'}
+                                    <input type="file" accept="image/*" className="hidden" disabled={uploadingImage === gItem.id} onChange={(e) => handleImageUpload(e, gItem.id)} />
+                                  </label>
+                                  {gItem.imageUrl ? (
+                                    <div className="flex items-center gap-2 flex-1">
+                                      <div className="h-full w-12 rounded overflow-hidden bg-muted flex-shrink-0 border border-border">
+                                        <img src={gItem.imageUrl} alt="preview" className="w-full h-full object-cover" />
+                                      </div>
+                                      <button type="button" onClick={() => updateGridItem(gItem.id, 'imageUrl', '')} className="text-red-400 hover:text-red-300 text-xs">Hapus</button>
+                                    </div>
+                                  ) : (
+                                    <span className="text-muted-foreground text-xs truncate">Belum ada foto</span>
+                                  )}
+                                </div>
                               </div>
                             </div>
 

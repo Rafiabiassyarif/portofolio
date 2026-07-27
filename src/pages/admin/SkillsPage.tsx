@@ -25,6 +25,7 @@ export default function SkillsPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [customCategory, setCustomCategory] = useState('');
 
   const fetchData = async () => {
     const data = await api.getSkills();
@@ -33,17 +34,46 @@ export default function SkillsPage() {
   };
   useEffect(() => { fetchData(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(emptyForm); setModalOpen(true); };
-  const openEdit = (item: Skill) => { setEditing(item); setForm({ name: item.name, icon: item.icon || '', category: item.category, order: item.order }); setModalOpen(true); };
+  const openCreate = () => { 
+    setEditing(null); 
+    setForm(emptyForm); 
+    setCustomCategory('');
+    setModalOpen(true); 
+  };
+  
+  const openEdit = (item: Skill) => { 
+    setEditing(item); 
+    
+    // Check if the item's category is one of the defaults
+    const isDefault = CATEGORIES.includes(item.category);
+    
+    setForm({ 
+      name: item.name, 
+      icon: item.icon || '', 
+      category: isDefault ? item.category : 'Other', 
+      order: item.order 
+    }); 
+    
+    setCustomCategory(isDefault ? '' : item.category);
+    setModalOpen(true); 
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    
+    // Split names by comma if there are multiple skills
+    const skillNames = form.name.split(',').map(n => n.trim()).filter(n => n);
+    
+    const categoryToSave = form.category === 'Other' && customCategory.trim() ? customCategory.trim() : form.category;
+
     try {
       if (editing) {
-        await api.updateSkill(editing.id, form, token!);
+        await api.updateSkill(editing.id, { ...form, name: skillNames[0], category: categoryToSave }, token!);
       } else {
-        await api.createSkill(form, token!);
+        for (const name of skillNames) {
+          await api.createSkill({ ...form, name, category: categoryToSave }, token!);
+        }
       }
       await fetchData();
       setModalOpen(false);
@@ -135,10 +165,13 @@ export default function SkillsPage() {
                 <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-[#141E2F] border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:outline-none focus:border-indigo-500/50 transition-all">
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
+                {form.category === 'Other' && (
+                  <input type="text" value={customCategory} onChange={e => setCustomCategory(e.target.value)} placeholder="Masukkan nama kategori kustom (contoh: Design)" required className="mt-3 w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                )}
               </div>
               <div>
-                <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Icon (nama ikon Lucide, opsional)</label>
-                <input type="text" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="Code2" className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Icon (nama ikon Lucide ATAU link URL, opsional)</label>
+                <input type="text" value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="misal: Code2 atau https://.../icon.svg" className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-xl border border-border text-muted-foreground text-sm hover:text-muted-foreground hover:bg-muted transition-all">Batal</button>

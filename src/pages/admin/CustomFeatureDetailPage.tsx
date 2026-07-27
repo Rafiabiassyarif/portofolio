@@ -245,7 +245,7 @@ export default function CustomFeatureDetailPage() {
                   { key: 'titleEn', label: 'Judul Utama (EN)', placeholder: 'Example Title' },
                   { key: 'subtitleId', label: 'Subjudul (ID - Opsional)', placeholder: 'Keterangan Singkat' },
                   { key: 'subtitleEn', label: 'Subjudul (EN - Opsional)', placeholder: 'Short Info' },
-                  { key: 'icon', label: 'Nama Ikon (Opsional)', placeholder: 'misal: Star, Shield, Code' },
+                  { key: 'icon', label: 'Nama Ikon Lucide atau Link URL (Opsional)', placeholder: 'misal: Star, Code, atau https://.../icon.svg' },
                   { key: 'linkUrl', label: 'URL Tautan (Opsional)', placeholder: 'https://...' },
                 ].map(({ key, label, placeholder }) => (
                   <div key={key} className={(key === 'icon' || key === 'linkUrl') ? 'col-span-2' : ''}>

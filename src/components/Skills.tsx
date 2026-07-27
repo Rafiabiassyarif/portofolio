@@ -14,7 +14,7 @@ interface Skill {
   isVisible?: boolean;
 }
 
-const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools'];
+const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools', 'Mobile', 'Other'];
 
 export function Skills() {
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -27,8 +27,11 @@ export function Skills() {
     }).catch(console.error);
   }, []);
 
+  // Get unique categories from skills, keeping default order for known ones
+  const ALL_CATEGORIES = Array.from(new Set([...CATEGORIES, ...skills.map(s => s.category)]));
+
   // Group skills by category
-  const groupedSkills = CATEGORIES.reduce((acc, cat) => {
+  const groupedSkills = ALL_CATEGORIES.reduce((acc, cat) => {
     acc[cat] = skills.filter(s => s.category === cat && s.isVisible !== false).sort((a, b) => a.order - b.order);
     return acc;
   }, {} as Record<string, Skill[]>);
@@ -39,6 +42,8 @@ export function Skills() {
       case 'Backend': return "Developing robust APIs and server-side logic.";
       case 'Database': return "Designing efficient and secure data storage solutions.";
       case 'Tools': return "Utilizing modern workflows and version control.";
+      case 'Mobile': return "Creating responsive and native mobile applications.";
+      case 'Other': return "Additional technical skills and miscellaneous capabilities.";
       default: return "";
     }
   };
@@ -57,7 +62,7 @@ export function Skills() {
       </div>
 
       <div className="flex flex-col border-t border-border">
-        {CATEGORIES.map((category, idx) => {
+        {ALL_CATEGORIES.map((category, idx) => {
           const categorySkills = groupedSkills[category] || [];
           if (categorySkills.length === 0 && skills.length > 0) return null;
           const isHovered = hoveredCategory === category;
