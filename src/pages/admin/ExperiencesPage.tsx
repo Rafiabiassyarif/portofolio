@@ -86,7 +86,9 @@ export default function ExperiencesPage() {
   };
 
   const handleToggleVisibility = async (item: Experience) => {
-    await api.updateExperience(item.id, { isVisible: !item.isVisible }, token!);
+    const fd = new FormData();
+    fd.append('isVisible', (!item.isVisible).toString());
+    await api.updateExperience(item.id, fd as any, token!);
     await fetchData();
   };
 
