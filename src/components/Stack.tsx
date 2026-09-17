@@ -1,14 +1,21 @@
+import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform } from 'motion/react';
-import { useState, useEffect } from 'react';
 import './Stack.css';
 
-function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }) {
+interface CardRotateProps {
+  children: React.ReactNode;
+  onSendToBack: () => void;
+  sensitivity: number;
+  disableDrag?: boolean;
+}
+
+function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }: CardRotateProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [60, -60]);
   const rotateY = useTransform(x, [-100, 100], [-60, 60]);
 
-  function handleDragEnd(_, info) {
+  function handleDragEnd(_: any, info: { offset: { x: number; y: number } }) {
     if (Math.abs(info.offset.x) > sensitivity || Math.abs(info.offset.y) > sensitivity) {
       onSendToBack();
     } else {
@@ -40,6 +47,19 @@ function CardRotate({ children, onSendToBack, sensitivity, disableDrag = false }
   );
 }
 
+interface StackProps {
+  randomRotation?: boolean;
+  sensitivity?: number;
+  cards?: React.ReactNode[];
+  animationConfig?: { stiffness: number; damping: number };
+  sendToBackOnClick?: boolean;
+  autoplay?: boolean;
+  autoplayDelay?: number;
+  pauseOnHover?: boolean;
+  mobileClickOnly?: boolean;
+  mobileBreakpoint?: number;
+}
+
 export default function Stack({
   randomRotation = false,
   sensitivity = 200,
@@ -51,7 +71,7 @@ export default function Stack({
   pauseOnHover = false,
   mobileClickOnly = false,
   mobileBreakpoint = 768
-}) {
+}: StackProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -68,53 +88,11 @@ export default function Stack({
   const shouldDisableDrag = mobileClickOnly && isMobile;
   const shouldEnableClick = sendToBackOnClick || shouldDisableDrag;
 
-  const [stack, setStack] = useState(() => {
+  const [stack, setStack] = useState<{ id: number; content: React.ReactNode }[]>(() => {
     if (cards.length) {
       return cards.map((content, index) => ({ id: index + 1, content }));
-    } else {
-      return [
-        {
-          id: 1,
-          content: (
-            <img
-              src="https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=500&auto=format"
-              alt="card-1"
-              className="card-image"
-            />
-          )
-        },
-        {
-          id: 2,
-          content: (
-            <img
-              src="https://images.unsplash.com/photo-1449844908441-8829872d2607?q=80&w=500&auto=format"
-              alt="card-2"
-              className="card-image"
-            />
-          )
-        },
-        {
-          id: 3,
-          content: (
-            <img
-              src="https://images.unsplash.com/photo-1452626212852-811d58933cae?q=80&w=500&auto=format"
-              alt="card-3"
-              className="card-image"
-            />
-          )
-        },
-        {
-          id: 4,
-          content: (
-            <img
-              src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?q=80&w=500&auto=format"
-              alt="card-4"
-              className="card-image"
-            />
-          )
-        }
-      ];
     }
+    return [];
   });
 
   useEffect(() => {
@@ -123,10 +101,11 @@ export default function Stack({
     }
   }, [cards]);
 
-  const sendToBack = id => {
+  const sendToBack = (id: number) => {
     setStack(prev => {
       const newStack = [...prev];
       const index = newStack.findIndex(card => card.id === id);
+      if (index === -1) return prev;
       const [card] = newStack.splice(index, 1);
       newStack.unshift(card);
       return newStack;
@@ -136,8 +115,8 @@ export default function Stack({
   useEffect(() => {
     if (autoplay && stack.length > 1 && !isPaused) {
       const interval = setInterval(() => {
-        const topCardId = stack[stack.length - 1].id;
-        sendToBack(topCardId);
+        const topCardId = stack[stack.length - 1]?.id;
+        if (topCardId) sendToBack(topCardId);
       }, autoplayDelay);
 
       return () => clearInterval(interval);

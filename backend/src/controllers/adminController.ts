@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -58,7 +59,8 @@ export const createInitialAdmin = async (req: Request, res: Response): Promise<a
     }
 
     const username = req.body?.username || process.env.ADMIN_INIT_USERNAME || 'admin';
-    const password = req.body?.password || process.env.ADMIN_INIT_PASSWORD || 'admin123';
+    const isGenerated = !req.body?.password && !process.env.ADMIN_INIT_PASSWORD;
+    const password = req.body?.password || process.env.ADMIN_INIT_PASSWORD || crypto.randomBytes(8).toString('hex');
 
     if (password.length < 6) {
       return res.status(400).json({ message: 'Password minimal 6 karakter' });
@@ -74,7 +76,8 @@ export const createInitialAdmin = async (req: Request, res: Response): Promise<a
 
     res.status(201).json({ 
       message: 'Admin berhasil dibuat', 
-      username: newAdmin.username 
+      username: newAdmin.username,
+      ...(isGenerated ? { generatedPassword: password, warning: 'Simpan password ini dan segera ganti setelah login!' } : {})
     });
   } catch (error) {
     console.error('Create admin error:', error);
