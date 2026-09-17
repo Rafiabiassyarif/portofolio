@@ -112,7 +112,7 @@ export default function CertificationsPage() {
               {/* Image */}
               <div className="aspect-video bg-card relative overflow-hidden">
                 {item.imageUrl ? (
-                  <img src={`${API_URL}${item.imageUrl}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={`${API_URL}${item.imageUrl}`} alt={item.titleId} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Award className="w-10 h-10 text-muted-foreground/30" />

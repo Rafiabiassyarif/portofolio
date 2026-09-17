@@ -112,7 +112,7 @@ export default function ProjectsPage() {
               {/* Image */}
               <div className="aspect-video bg-card relative overflow-hidden">
                 {item.imageUrl ? (
-                  <img src={`${API_URL}${item.imageUrl}`} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={`${API_URL}${item.imageUrl}`} alt={item.titleId} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="w-8 h-8 text-white/15" />

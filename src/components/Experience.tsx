@@ -29,6 +29,7 @@ export function Experience() {
       company: "Ko+Lab Telkom University",
       period: t.experience.date,
       description: "",
+      imageUrl: null,
     }
   ];
 

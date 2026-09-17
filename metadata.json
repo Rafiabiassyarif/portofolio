@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
+  "name": "portfolio-app",
+  "description": "Interactive modern personal portfolio with dynamic admin panel",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }
