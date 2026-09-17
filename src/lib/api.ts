@@ -1,12 +1,39 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const envApiUrl = import.meta.env.VITE_API_URL;
+const isProd = import.meta.env.PROD;
+
+// In production, default to relative '/api' so it works seamlessly behind Nginx reverse proxy.
+// In local development, default to 'http://localhost:5000/api'.
+const rawApiBase = envApiUrl 
+  ? (envApiUrl.endsWith('/') ? envApiUrl.slice(0, -1) : envApiUrl)
+  : (isProd ? '/api' : 'http://localhost:5000/api');
+
+export const API_BASE = rawApiBase;
+
+// Host prefix for image uploads (e.g. /uploads/image.png)
+// If API_BASE is relative '/api', upload host prefix is empty string ''
+// If API_BASE is 'http://localhost:5000/api', host prefix is 'http://localhost:5000'
+export const API_URL = envApiUrl 
+  ? envApiUrl.replace(/\/api\/?$/, '') 
+  : (isProd ? '' : 'http://localhost:5000');
 
 export const api = {
   // Auth
   login: (data: { username: string; password: string }) =>
     fetch(`${API_BASE}/admin/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json()),
 
-  setup: () =>
-    fetch(`${API_BASE}/admin/setup`, { method: 'POST' }).then(r => r.json()),
+  setup: (data?: { username?: string; password?: string; setupKey?: string }) =>
+    fetch(`${API_BASE}/admin/setup`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json', ...(data?.setupKey ? { 'x-setup-key': data.setupKey } : {}) },
+      body: JSON.stringify(data || {}) 
+    }).then(r => r.json()),
+
+  changePassword: (data: { currentPassword?: string; newPassword: string }, token: string) =>
+    fetch(`${API_BASE}/admin/change-password`, { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, 
+      body: JSON.stringify(data) 
+    }).then(r => r.json()),
 
   // Hero
   getHero: () => fetch(`${API_BASE}/hero`).then(r => r.json()),
@@ -62,5 +89,3 @@ export const api = {
   uploadImage: (formData: FormData, token: string) =>
     fetch(`${API_BASE}/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData }).then(r => r.json()),
 };
-
-export const API_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';

@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "nodemon --exec tsx src/server.ts",
     "start": "tsx src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "seed:admin": "tsx src/scripts/seedAdmin.ts",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate"
   },
   "keywords": [],
   "author": "",

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
+import { JWT_SECRET, ADMIN_SETUP_SECRET } from '../config/env';
+import { AuthRequest } from '../middleware/auth';
 
 export const login = async (req: Request, res: Response): Promise<any> => {
   const { username, password } = req.body;
@@ -22,7 +24,7 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
     const token = jwt.sign(
       { id: admin.id },
-      process.env.JWT_SECRET || 'supersecret_jwt_key_please_change',
+      JWT_SECRET,
       { expiresIn: '1d' }
     );
 
@@ -47,17 +49,77 @@ export const createInitialAdmin = async (req: Request, res: Response): Promise<a
       return res.status(400).json({ message: 'Admin sudah ada!' });
     }
 
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    // Optional setup secret guard if configured
+    if (ADMIN_SETUP_SECRET) {
+      const providedSecret = req.headers['x-setup-key'] || req.body?.setupKey;
+      if (providedSecret !== ADMIN_SETUP_SECRET) {
+        return res.status(403).json({ message: 'Akses ditolak: Setup key tidak valid.' });
+      }
+    }
+
+    const username = req.body?.username || process.env.ADMIN_INIT_USERNAME || 'admin';
+    const password = req.body?.password || process.env.ADMIN_INIT_PASSWORD || 'admin123';
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password minimal 6 karakter' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newAdmin = await prisma.admin.create({
       data: {
-        username: 'admin',
+        username,
         password: hashedPassword
       }
     });
 
-    res.status(201).json({ message: 'Admin default berhasil dibuat', username: newAdmin.username });
+    res.status(201).json({ 
+      message: 'Admin berhasil dibuat', 
+      username: newAdmin.username 
+    });
   } catch (error) {
     console.error('Create admin error:', error);
     res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
 };
+
+export const changePassword = async (req: AuthRequest, res: Response): Promise<any> => {
+  const { currentPassword, newPassword } = req.body;
+  const adminId = req.adminId;
+
+  if (!adminId) {
+    return res.status(401).json({ message: 'Tidak terotentikasi' });
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ message: 'Password baru minimal 6 karakter' });
+  }
+
+  try {
+    const admin = await prisma.admin.findUnique({
+      where: { id: adminId }
+    });
+
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin tidak ditemukan' });
+    }
+
+    if (currentPassword) {
+      const isMatch = await bcrypt.compare(currentPassword, admin.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Password lama tidak sesuai' });
+      }
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.admin.update({
+      where: { id: adminId },
+      data: { password: hashedPassword }
+    });
+
+    res.json({ message: 'Password admin berhasil diperbarui' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+  }
+};
+

@@ -12,12 +12,18 @@ import certificationRoutes from './routes/certificationRoutes';
 import customSectionRoutes from './routes/customSectionRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 
-dotenv.config();
+import { PORT, CORS_ORIGIN } from './config/env';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const allowedOrigins = CORS_ORIGIN === '*' 
+  ? '*' 
+  : CORS_ORIGIN.split(',').map(o => o.trim());
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

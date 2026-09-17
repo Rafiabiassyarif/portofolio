@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, X, Save, ChevronRight, Eye, EyeOff } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
 interface Experience { id: number; roleId: string; roleEn: string; company: string; durationId: string; durationEn: string; descriptionId: string; descriptionEn: string; imageUrl: string | null; order: number; isVisible: boolean; }
@@ -21,8 +21,6 @@ export default function ExperiencesPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
-
-  const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000';
 
   const fetchData = async () => {
     const data = await api.getExperiences();

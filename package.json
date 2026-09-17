@@ -1,13 +1,17 @@
 {
-  "name": "react-example",
+  "name": "portfolio-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "concurrently --kill-others --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix backend\" \"vite --port=3000 --host=0.0.0.0\"",
     "dev:frontend": "vite --port=3000 --host=0.0.0.0",
+    "dev:backend": "npm run dev --prefix backend",
     "start": "concurrently --kill-others --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix backend\" \"vite --port=3000 --host=0.0.0.0\"",
+    "start:backend": "npm run start --prefix backend",
     "build": "vite build",
+    "build:backend": "npm run build --prefix backend",
+    "seed:admin": "npm run seed:admin --prefix backend",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"
