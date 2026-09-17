@@ -26,7 +26,7 @@ export default function AdminLayout() {
   const fetchSections = () => {
     api.getCustomSections().then(data => {
       if (Array.isArray(data)) setCustomSections(data);
-    }).catch(() => {});
+    }).catch(() => { });
   };
 
   useEffect(() => {
@@ -74,10 +74,9 @@ export default function AdminLayout() {
               end={to === '/xadmin/panel/dashboard'}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                  isActive
-                    ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20'
-                    : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'
+                `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${isActive
+                  ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20'
+                  : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'
                 }`
               }
             >
@@ -104,11 +103,10 @@ export default function AdminLayout() {
                     key={section.id}
                     to={`/xadmin/panel/c/${section.id}`}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                      isSectionActive
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${isSectionActive
                         ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20'
                         : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'
-                    }`}
+                      }`}
                   >
                     <FileText className={`w-4 h-4 flex-shrink-0 ${isSectionActive ? 'text-indigo-400' : 'text-muted-foreground group-hover:text-muted-foreground'}`} />
                     <span className="flex-1">{section.titleId}</span>
@@ -141,7 +139,7 @@ export default function AdminLayout() {
           >
             <Menu className="w-5 h-5" />
           </button>
-          
+
           <div className="flex-1" />
 
           <button onClick={toggleTheme} className="p-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all">

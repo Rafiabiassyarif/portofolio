@@ -95,7 +95,7 @@ function MainPortfolio() {
       wheelMultiplier: 1,
       touchMultiplier: 2,
     });
-    
+
     // @ts-ignore
     window.globalLenis = lenis;
 
@@ -191,7 +191,7 @@ export default function App() {
                     </Route>
 
                     {/* 404 fallback */}
-                    <Route path="*" element={<div style={{color: 'white', padding: '50px'}}>404 Not Found</div>} />
+                    <Route path="*" element={<div style={{ color: 'white', padding: '50px' }}>404 Not Found</div>} />
                   </Routes>
                 </Suspense>
               </AuthProvider>

@@ -74,32 +74,3 @@ npm start
 ```
 Buka browser di `http://localhost:3000`.
 
----
-
-## 🌐 Panduan Deploy ke Server / VPS
-
-### 1. Build Frontend
-Pastikan environment API base URL sudah diatur (untuk reverse proxy Nginx pada satu domain, gunakan `/api`):
-```bash
-VITE_API_URL=/api npm run build
-```
-Hasil build statis akan tersimpan di folder `dist/`.
-
-### 2. Jalankan Backend dengan Process Manager (PM2)
-Di server VPS / Minibox:
-```bash
-cd backend
-npm install --production=false
-npx prisma generate
-npx prisma migrate deploy
-
-# Jalankan dengan PM2 di port bebas (misal PORT=5001)
-PORT=5001 NODE_ENV=production pm2 start "npx tsx src/server.ts" --name "portfolio-api"
-```
-
-### 3. Konfigurasi Nginx
-Gunakan konfigurasi reverse proxy Nginx (satu domain):
-- `location /` mengarah ke folder `dist/` dengan fallback `try_files $uri $uri/ /index.html;` (SPA).
-- `location /api/` proxy ke `http://127.0.0.1:5001`.
-- `location /uploads/` proxy ke `http://127.0.0.1:5001/uploads/`.
-- Pastikan HTTPS aktif agar fitur webcam / face-api dapat berjalan.
