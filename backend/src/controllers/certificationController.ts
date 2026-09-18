@@ -16,7 +16,18 @@ export const createCertification = async (req: Request, res: Response): Promise<
     const { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, order, isVisible } = req.body;
     const imageUrl = req.file ? await saveMedia(req.file) : null;
     const cert = await prisma.certification.create({
-      data: { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, imageUrl, order: order ? parseInt(order) : 0, isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : true }
+      data: { 
+        titleId: (titleId || titleEn || '').trim(), 
+        titleEn: (titleEn || titleId || '').trim(), 
+        issuerId: (issuerId || issuerEn || '').trim(), 
+        issuerEn: (issuerEn || issuerId || '').trim(), 
+        dateId: (dateId || dateEn || '').trim(), 
+        dateEn: (dateEn || dateId || '').trim(), 
+        credentialUrl, 
+        imageUrl, 
+        order: order ? parseInt(order) : 0, 
+        isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : true 
+      }
     });
     res.status(201).json(cert);
   } catch (error) {
@@ -43,7 +54,18 @@ export const updateCertification = async (req: Request, res: Response): Promise<
 
     const cert = await prisma.certification.update({
       where: { id: parseInt(id as string) },
-      data: { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, imageUrl, order: order !== undefined ? parseInt(order) : existing.order, isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : existing.isVisible }
+      data: { 
+        titleId: titleId !== undefined ? (titleId || titleEn || existing.titleId) : existing.titleId, 
+        titleEn: titleEn !== undefined ? (titleEn || titleId || existing.titleEn) : existing.titleEn, 
+        issuerId: issuerId !== undefined ? (issuerId || issuerEn || existing.issuerId) : existing.issuerId, 
+        issuerEn: issuerEn !== undefined ? (issuerEn || issuerId || existing.issuerEn) : existing.issuerEn, 
+        dateId: dateId !== undefined ? (dateId || dateEn || existing.dateId) : existing.dateId, 
+        dateEn: dateEn !== undefined ? (dateEn || dateId || existing.dateEn) : existing.dateEn, 
+        credentialUrl, 
+        imageUrl, 
+        order: order !== undefined ? parseInt(order) : existing.order, 
+        isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : existing.isVisible 
+      }
     });
     res.json(cert);
   } catch (error) {

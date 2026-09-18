@@ -18,10 +18,10 @@ export function Experience() {
   }, []);
 
   const EXPERIENCES = dbExperiences.length > 0 ? dbExperiences.filter((exp: any) => exp.isVisible !== false).map(exp => ({
-    role: language === 'id' ? exp.roleId : exp.roleEn,
+    role: language === 'id' ? (exp.roleId || exp.roleEn) : (exp.roleEn || exp.roleId),
     company: exp.company,
-    period: language === 'id' ? exp.durationId : exp.durationEn,
-    description: language === 'id' ? exp.descriptionId : exp.descriptionEn,
+    period: language === 'id' ? (exp.durationId || exp.durationEn) : (exp.durationEn || exp.durationId),
+    description: language === 'id' ? (exp.descriptionId || exp.descriptionEn) : (exp.descriptionEn || exp.descriptionId),
     imageUrl: exp.imageUrl,
   })) : [
     {
@@ -41,11 +41,11 @@ export function Experience() {
       {/* Title Section */}
       <div className="relative mb-20 text-center md:text-left">
         <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
-          EXPERIENCE
+          {language === 'id' ? 'PENGALAMAN' : 'EXPERIENCE'}
         </h1>
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-center md:items-end gap-4">
           <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-            EXPERIENCE
+            {language === 'id' ? 'PENGALAMAN' : 'EXPERIENCE'}
           </h2>
         </div>
       </div>

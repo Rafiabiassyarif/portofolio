@@ -18,7 +18,13 @@ export const createExperience = async (req: Request, res: Response): Promise<any
 
     const experience = await prisma.experience.create({
       data: { 
-        roleId, roleEn, company, durationId, durationEn, descriptionId, descriptionEn, 
+        roleId: (roleId || roleEn || '').trim(), 
+        roleEn: (roleEn || roleId || '').trim(), 
+        company: (company || '').trim(), 
+        durationId: (durationId || durationEn || '').trim(), 
+        durationEn: (durationEn || durationId || '').trim(), 
+        descriptionId: (descriptionId || descriptionEn || '').trim(), 
+        descriptionEn: (descriptionEn || descriptionId || '').trim(), 
         imageUrl,
         order: order ? parseInt(order) : 0, 
         isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : true 
@@ -51,7 +57,13 @@ export const updateExperience = async (req: Request, res: Response): Promise<any
     const experience = await prisma.experience.update({
       where: { id: parseInt(id as string) },
       data: { 
-        roleId, roleEn, company, durationId, durationEn, descriptionId, descriptionEn, 
+        roleId: roleId !== undefined ? (roleId || roleEn || existing.roleId) : existing.roleId, 
+        roleEn: roleEn !== undefined ? (roleEn || roleId || existing.roleEn) : existing.roleEn, 
+        company: company !== undefined ? company : existing.company, 
+        durationId: durationId !== undefined ? (durationId || durationEn || existing.durationId) : existing.durationId, 
+        durationEn: durationEn !== undefined ? (durationEn || durationId || existing.durationEn) : existing.durationEn, 
+        descriptionId: descriptionId !== undefined ? (descriptionId || descriptionEn || existing.descriptionId) : existing.descriptionId, 
+        descriptionEn: descriptionEn !== undefined ? (descriptionEn || descriptionId || existing.descriptionEn) : existing.descriptionEn, 
         imageUrl,
         order: order !== undefined ? parseInt(order) : existing.order, 
         isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : existing.isVisible 

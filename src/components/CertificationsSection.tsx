@@ -16,9 +16,15 @@ export function CertificationsSection() {
   const CERTIFICATIONS = dbCerts.length > 0 ? dbCerts.filter((cert: any) => cert.isVisible !== false).map((cert) => {
     return {
       id: cert.id,
-      title: language === 'id' ? cert.titleId || cert.title : cert.titleEn || cert.title,
-      desc: language === 'id' ? cert.issuerId : cert.issuerEn,
-      score: language === 'id' ? cert.dateId || cert.date : cert.dateEn || cert.date,
+      title: language === 'id' 
+        ? (cert.titleId || cert.title || cert.titleEn) 
+        : (cert.titleEn || cert.title || cert.titleId),
+      desc: language === 'id' 
+        ? (cert.issuerId || cert.issuerEn) 
+        : (cert.issuerEn || cert.issuerId),
+      score: language === 'id' 
+        ? (cert.dateId || cert.date || cert.dateEn) 
+        : (cert.dateEn || cert.date || cert.dateId),
       link: cert.credentialUrl,
       imageUrl: cert.imageUrl,
     };
@@ -48,10 +54,10 @@ export function CertificationsSection() {
       {/* Title Section */}
       <div className="relative mb-20 text-center md:text-left px-6 md:px-12 lg:px-24 2xl:px-32">
         <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
-          AWARDS
+          {language === 'id' ? 'PENGHARGAAN' : 'AWARDS'}
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10 flex items-center justify-center md:justify-start gap-4">
-          CERTIFICATIONS
+          {language === 'id' ? 'SERTIFIKASI' : 'CERTIFICATIONS'}
         </h2>
       </div>
 
@@ -92,11 +98,13 @@ export function CertificationsSection() {
                   <div className="flex flex-col h-full">
                     <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">{card.title}</h3>
                     <p className="text-sm font-medium text-muted-foreground line-clamp-2 mb-4">{card.desc}</p>
-                    <div className="mt-auto">
-                      <div className="text-xs font-bold px-3 py-1 bg-background rounded-full inline-block border border-border">
-                        {card.score}
+                    {Boolean(card.score && String(card.score).trim()) && (
+                      <div className="mt-auto">
+                        <div className="text-xs font-bold px-3 py-1 bg-background rounded-full inline-block border border-border">
+                          {card.score}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                   {card.link && (
                     <div className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">

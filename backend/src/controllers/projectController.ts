@@ -20,10 +20,10 @@ export const createProject = async (req: Request, res: Response): Promise<any> =
 
     const newProject = await prisma.project.create({
       data: {
-        titleId,
-        titleEn,
-        descriptionId,
-        descriptionEn,
+        titleId: (titleId || titleEn || '').trim(),
+        titleEn: (titleEn || titleId || '').trim(),
+        descriptionId: (descriptionId || descriptionEn || '').trim(),
+        descriptionEn: (descriptionEn || descriptionId || '').trim(),
         githubUrl,
         demoUrl,
         tags,
@@ -61,10 +61,10 @@ export const updateProject = async (req: Request, res: Response): Promise<any> =
     const updatedProject = await prisma.project.update({
       where: { id: parseInt(id as string) },
       data: {
-        titleId,
-        titleEn,
-        descriptionId,
-        descriptionEn,
+        titleId: titleId !== undefined ? (titleId || titleEn || existingProject.titleId) : existingProject.titleId,
+        titleEn: titleEn !== undefined ? (titleEn || titleId || existingProject.titleEn) : existingProject.titleEn,
+        descriptionId: descriptionId !== undefined ? (descriptionId || descriptionEn || existingProject.descriptionId) : existingProject.descriptionId,
+        descriptionEn: descriptionEn !== undefined ? (descriptionEn || descriptionId || existingProject.descriptionEn) : existingProject.descriptionEn,
         githubUrl,
         demoUrl,
         tags,

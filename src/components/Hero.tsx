@@ -22,15 +22,15 @@ export function Hero() {
   const secondPart = nameParts.slice(Math.ceil(nameParts.length / 2)).join(' ').toUpperCase();
 
   const greeting = language === 'id'
-    ? (heroData?.greetingId || "")
+    ? (heroData?.greetingId || heroData?.greetingEn || "")
     : (heroData?.greetingEn || heroData?.greetingId || "");
 
   const headline = language === 'id'
-    ? (heroData?.titleId || "")
+    ? (heroData?.titleId || heroData?.titleEn || "")
     : (heroData?.titleEn || heroData?.titleId || "");
 
   const description = language === 'id'
-    ? (heroData?.descriptionId || "")
+    ? (heroData?.descriptionId || heroData?.descriptionEn || "")
     : (heroData?.descriptionEn || heroData?.descriptionId || "");
 
   const resumeLink = heroData?.resumeUrl || "";
@@ -104,11 +104,11 @@ export function Hero() {
             </p>
             <div className="flex items-center gap-4">
               <a href="#contact" className="inline-flex items-center justify-center rounded-full bg-foreground text-background px-6 py-3 text-sm font-semibold transition-transform hover:scale-105">
-                {language === 'id' ? "Mari berkolaborasi" : "Let's collaborate"} <ArrowUpRight className="w-4 h-4 ml-2" />
+                {(t.hero as any).collaborate || (language === 'id' ? "Mari berkolaborasi" : "Let's collaborate")} <ArrowUpRight className="w-4 h-4 ml-2" />
               </a>
               {resumeLink && (
                 <a href={resumeLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full bg-background border-2 border-foreground text-foreground px-6 py-3 text-sm font-semibold transition-transform hover:scale-105">
-                  {language === 'id' ? "Lihat CV" : "View CV"}
+                  {(t.hero as any).viewCv || (language === 'id' ? "Lihat CV" : "View CV")}
                 </a>
               )}
             </div>

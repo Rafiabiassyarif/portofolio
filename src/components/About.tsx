@@ -2,11 +2,11 @@ import { Section, SectionHeading } from "./Section";
 import { GraduationCap, Trophy, Briefcase, MapPin } from "lucide-react";
 import { motion } from "motion/react";
 import { useContent } from "../context/ContentContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export function About() {
   const { content: t } = useContent();
-
-
+  const { language } = useLanguage();
 
   return (
     <section id="about" className="py-24 md:py-32 relative z-20 w-full px-6 md:px-12 lg:px-24 2xl:px-32 border-t border-black/5 dark:border-white/5">
@@ -14,10 +14,10 @@ export function About() {
       {/* Title Section */}
       <div className="relative mb-20 text-center md:text-left">
         <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
-          ABOUT
+          {(t.about as any).watermark || (language === 'id' ? 'TENTANG' : 'ABOUT')}
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-          ABOUT ME
+          {(t.about as any).title || (language === 'id' ? 'TENTANG SAYA' : 'ABOUT ME')}
         </h2>
       </div>
       

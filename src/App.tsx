@@ -22,18 +22,18 @@ const CustomSectionComponent = lazy(() => import("./components/CustomSectionComp
 const Contact = lazy(() => import("./components/Contact").then(m => ({ default: m.Contact })));
 const Footer = lazy(() => import("./components/Footer").then(m => ({ default: m.Footer })));
 
-// Lazy load all admin pages
-const AdminLoginPage = lazy(() => import("./pages/admin/AdminLoginPage"));
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
-const ProtectedRoute = lazy(() => import("./pages/admin/ProtectedRoute"));
-const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
-const HeroPage = lazy(() => import("./pages/admin/HeroPage"));
-const ExperiencesPage = lazy(() => import("./pages/admin/ExperiencesPage"));
-const ProjectsPage = lazy(() => import("./pages/admin/ProjectsPage"));
-const SkillsPage = lazy(() => import("./pages/admin/SkillsPage"));
-const CertificationsPage = lazy(() => import("./pages/admin/CertificationsPage"));
-const CustomSectionsPage = lazy(() => import("./pages/admin/CustomSectionsPage"));
-const CustomFeatureDetailPage = lazy(() => import("./pages/admin/CustomFeatureDetailPage"));
+// Static import all admin pages for instantaneous navigation without chunk-loading freezes
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminLayout from "./pages/admin/AdminLayout";
+import ProtectedRoute from "./pages/admin/ProtectedRoute";
+import DashboardPage from "./pages/admin/DashboardPage";
+import HeroPage from "./pages/admin/HeroPage";
+import ExperiencesPage from "./pages/admin/ExperiencesPage";
+import ProjectsPage from "./pages/admin/ProjectsPage";
+import SkillsPage from "./pages/admin/SkillsPage";
+import CertificationsPage from "./pages/admin/CertificationsPage";
+import CustomSectionsPage from "./pages/admin/CustomSectionsPage";
+import CustomFeatureDetailPage from "./pages/admin/CustomFeatureDetailPage";
 
 // Error boundary to catch silent render errors
 interface EBProps { children: ReactNode }
@@ -175,9 +175,9 @@ export default function App() {
                     {/* Hidden Admin Login — exact path /xadmin */}
                     <Route path="/xadmin" element={<AdminLoginPage />} />
 
-                    {/* Protected Admin Dashboard — all paths under /xadmin/panel/* */}
+                    {/* Protected Admin Dashboard — all paths under /xadmin/panel */}
                     <Route element={<ProtectedRoute />}>
-                      <Route path="/xadmin/panel/*" element={<AdminLayout />}>
+                      <Route path="/xadmin/panel" element={<AdminLayout />}>
                         <Route index element={<DashboardPage />} />
                         <Route path="dashboard" element={<DashboardPage />} />
                         <Route path="hero" element={<HeroPage />} />

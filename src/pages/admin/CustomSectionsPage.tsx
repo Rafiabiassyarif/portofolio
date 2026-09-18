@@ -51,7 +51,6 @@ export default function CustomSectionsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<CustomSection | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [formLanguage, setFormLanguage] = useState<'id'|'en'>('id');
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -292,34 +291,45 @@ export default function CustomSectionsPage() {
                     </button>
                   </div>
 
-                  {/* Language Toggle */}
-                  <div className="flex bg-muted p-1 rounded-xl w-fit border border-border">
-                    <button
-                      type="button"
-                      onClick={() => setFormLanguage('id')}
-                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'id' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                    >
-                      Indonesian
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormLanguage('en')}
-                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'en' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                    >
-                      English
-                    </button>
-                  </div>
                 </div>
 
                 {/* Shared Inputs (Nav & Title) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase block mb-1.5">Label Navigasi ({formLanguage.toUpperCase()})</label>
-                    <input type="text" value={formLanguage === 'id' ? form.navLabelId : form.navLabelEn} onChange={e => setForm(p => ({ ...p, [formLanguage === 'id' ? 'navLabelId' : 'navLabelEn']: e.target.value }))} placeholder="Layanan" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase block mb-1.5 font-semibold">Label Navigasi</label>
+                    <input
+                      type="text"
+                      value={form.navLabelId}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setForm(p => ({
+                          ...p,
+                          navLabelId: val,
+                          navLabelEn: (!p.navLabelEn || p.navLabelEn === p.navLabelId) ? val : p.navLabelEn
+                        }));
+                      }}
+                      placeholder="Layanan"
+                      required
+                      className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all"
+                    />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase block mb-1.5">Judul Section ({formLanguage.toUpperCase()})</label>
-                    <input type="text" value={formLanguage === 'id' ? form.titleId : form.titleEn} onChange={e => setForm(p => ({ ...p, [formLanguage === 'id' ? 'titleId' : 'titleEn']: e.target.value }))} placeholder="Layanan Saya" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase block mb-1.5 font-semibold">Judul Section</label>
+                    <input
+                      type="text"
+                      value={form.titleId}
+                      onChange={e => {
+                        const val = e.target.value;
+                        setForm(p => ({
+                          ...p,
+                          titleId: val,
+                          titleEn: (!p.titleEn || p.titleEn === p.titleId) ? val : p.titleEn
+                        }));
+                      }}
+                      placeholder="Layanan Saya"
+                      required
+                      className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm focus:border-indigo-500/50 outline-none transition-all"
+                    />
                   </div>
                 </div>
 
@@ -333,7 +343,7 @@ export default function CustomSectionsPage() {
                 ) : (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs text-muted-foreground uppercase block">Data Kartu (Grid)</label>
+                      <label className="text-xs text-muted-foreground uppercase block font-semibold">Data Kartu (Grid)</label>
                       <button type="button" onClick={addGridItem} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 text-xs font-semibold transition-colors">
                         <Plus className="w-3 h-3" /> Tambah Kartu
                       </button>
@@ -354,18 +364,53 @@ export default function CustomSectionsPage() {
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                               <div>
-                                <label className="text-[10px] text-muted-foreground uppercase block mb-1">Judul ({formLanguage.toUpperCase()})</label>
-                                <input type="text" value={formLanguage === 'id' ? gItem.titleId : gItem.titleEn} onChange={e => updateGridItem(gItem.id, formLanguage === 'id' ? 'titleId' : 'titleEn', e.target.value)} required className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none" />
+                                <label className="text-[10px] text-muted-foreground uppercase block mb-1 font-semibold">Judul</label>
+                                <input
+                                  type="text"
+                                  value={gItem.titleId}
+                                  onChange={e => {
+                                    const val = e.target.value;
+                                    updateGridItem(gItem.id, 'titleId', val);
+                                    if (!gItem.titleEn || gItem.titleEn === gItem.titleId) {
+                                      updateGridItem(gItem.id, 'titleEn', val);
+                                    }
+                                  }}
+                                  required
+                                  className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none"
+                                />
                               </div>
                               <div>
-                                <label className="text-[10px] text-muted-foreground uppercase block mb-1">Subjudul ({formLanguage.toUpperCase()})</label>
-                                <input type="text" value={formLanguage === 'id' ? gItem.subtitleId : gItem.subtitleEn} onChange={e => updateGridItem(gItem.id, formLanguage === 'id' ? 'subtitleId' : 'subtitleEn', e.target.value)} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none" />
+                                <label className="text-[10px] text-muted-foreground uppercase block mb-1 font-semibold">Subjudul</label>
+                                <input
+                                  type="text"
+                                  value={gItem.subtitleId}
+                                  onChange={e => {
+                                    const val = e.target.value;
+                                    updateGridItem(gItem.id, 'subtitleId', val);
+                                    if (!gItem.subtitleEn || gItem.subtitleEn === gItem.subtitleId) {
+                                      updateGridItem(gItem.id, 'subtitleEn', val);
+                                    }
+                                  }}
+                                  className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none"
+                                />
                               </div>
                             </div>
                             
                             <div className="mb-4">
-                              <label className="text-[10px] text-muted-foreground uppercase block mb-1">Deskripsi ({formLanguage.toUpperCase()})</label>
-                              <textarea value={formLanguage === 'id' ? gItem.descId : gItem.descEn} onChange={e => updateGridItem(gItem.id, formLanguage === 'id' ? 'descId' : 'descEn', e.target.value)} required rows={2} className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none resize-none" />
+                              <label className="text-[10px] text-muted-foreground uppercase block mb-1 font-semibold">Deskripsi</label>
+                              <textarea
+                                value={gItem.descId}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  updateGridItem(gItem.id, 'descId', val);
+                                  if (!gItem.descEn || gItem.descEn === gItem.descId) {
+                                    updateGridItem(gItem.id, 'descEn', val);
+                                  }
+                                }}
+                                required
+                                rows={2}
+                                className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-foreground text-xs focus:border-indigo-500/50 outline-none resize-none"
+                              />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

@@ -30,10 +30,10 @@ export function ProjectsSection() {
       {/* Title Section */}
       <div className="relative mb-20 text-center md:text-left">
         <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
-          PORTFOLIO
+          {language === 'id' ? 'PORTOFOLIO' : 'PORTFOLIO'}
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-          SELECTED WORK
+          {language === 'id' ? 'KARYA PILIHAN' : 'SELECTED WORK'}
         </h2>
       </div>
 
@@ -47,8 +47,12 @@ export function ProjectsSection() {
           <div className="w-full max-w-3xl mx-auto h-[70vh] min-h-[500px] md:min-h-[600px] relative">
             <Stack
               cards={projects.map((project) => {
-                const title = language === 'id' ? project.titleId || project.title : project.titleEn || project.title;
-                const desc = language === 'id' ? project.descriptionId : project.descriptionEn;
+                const title = language === 'id' 
+                  ? (project.titleId || project.title || project.titleEn) 
+                  : (project.titleEn || project.title || project.titleId);
+                const desc = language === 'id' 
+                  ? (project.descriptionId || project.descriptionEn) 
+                  : (project.descriptionEn || project.descriptionId);
                 const imgUrl = project.imageUrl ? `${API_URL}${project.imageUrl}` : "/placeholder.png";
                 const techTags = (project.tags || "").split(',').map((t: string) => t.trim()).filter(Boolean);
 
@@ -84,12 +88,12 @@ export function ProjectsSection() {
                       <div className="flex items-center gap-4 mt-auto">
                         {(project.demoUrl || project.liveUrl) && (
                           <a href={project.demoUrl || project.liveUrl} target="_blank" rel="noreferrer" draggable={false} className="text-foreground text-xs md:text-sm font-bold border-b border-foreground pb-1 hover:opacity-70 transition-opacity">
-                            Live Demo
+                            {(t.projects as any).liveDemo || (language === 'id' ? 'Demo Langsung' : 'Live Demo')}
                           </a>
                         )}
                         {project.githubUrl && (
                           <a href={project.githubUrl} target="_blank" rel="noreferrer" draggable={false} className="text-foreground text-xs md:text-sm font-bold border-b border-foreground pb-1 hover:opacity-70 transition-opacity">
-                            Source Code
+                            {(t.projects as any).sourceCode || (language === 'id' ? 'Kode Sumber' : 'Source Code')}
                           </a>
                         )}
                       </div>
@@ -104,7 +108,7 @@ export function ProjectsSection() {
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-20 font-medium">
-            No projects found.
+            {(t.projects as any).noProjects || (language === 'id' ? 'Tidak ada proyek ditemukan.' : 'No projects found.')}
           </div>
         )}
       </div>

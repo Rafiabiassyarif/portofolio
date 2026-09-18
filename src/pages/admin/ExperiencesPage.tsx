@@ -1,10 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, X, Save, ChevronRight, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Plus, Pencil, Trash2, X, Save, Upload, Briefcase, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { autoTranslateDate } from '../../utils/bilingualHelper';
+import { PeriodDatePicker } from '../../components/admin/PeriodDatePicker';
 
-interface Experience { id: number; roleId: string; roleEn: string; company: string; durationId: string; durationEn: string; descriptionId: string; descriptionEn: string; imageUrl: string | null; order: number; isVisible: boolean; }
-const emptyForm = { roleId: '', roleEn: '', company: '', durationId: '', durationEn: '', descriptionId: '', descriptionEn: '', order: 0 };
+interface Experience {
+  id: number;
+  roleId: string;
+  roleEn: string;
+  company: string;
+  durationId: string;
+  durationEn: string;
+  descriptionId: string;
+  descriptionEn: string;
+  imageUrl: string | null;
+  order: number;
+  isVisible: boolean;
+}
+
+const emptyForm = {
+  roleId: '',
+  roleEn: '',
+  company: '',
+  durationId: '',
+  durationEn: '',
+  descriptionId: '',
+  descriptionEn: '',
+  order: 0,
+};
 
 export default function ExperiencesPage() {
   const { token } = useAuth();
@@ -13,19 +37,22 @@ export default function ExperiencesPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Experience | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [formLanguage, setFormLanguage] = useState<'id'|'en'>('id');
-  const [saving, setSaving] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-
   const [file, setFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
-  const fileRef = React.useRef<HTMLInputElement>(null);
+  const [saving, setSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchData = async () => {
-    const data = await api.getExperiences();
-    setItems(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const data = await api.getExperiences();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { fetchData(); }, []);
 
@@ -39,6 +66,22 @@ export default function ExperiencesPage() {
     setForm({ roleId: item.roleId, roleEn: item.roleEn, company: item.company, durationId: item.durationId, durationEn: item.durationEn, descriptionId: item.descriptionId, descriptionEn: item.descriptionEn, order: item.order }); 
     setFile(null); setImagePreview(item.imageUrl ? `${API_URL}${item.imageUrl}` : null); setRemoveImage(false);
     setModalOpen(true); 
+  };
+
+  const handleIdChange = (field: 'roleId' | 'durationId' | 'descriptionId', value: string) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'roleId') {
+        if (!prev.roleEn || prev.roleEn === prev.roleId) updated.roleEn = value;
+      } else if (field === 'durationId') {
+        if (!prev.durationEn || prev.durationEn === prev.durationId || prev.durationEn === autoTranslateDate(prev.durationId)) {
+          updated.durationEn = autoTranslateDate(value);
+        }
+      } else if (field === 'descriptionId') {
+        if (!prev.descriptionEn || prev.descriptionEn === prev.descriptionId) updated.descriptionEn = value;
+      }
+      return updated;
+    });
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +103,17 @@ export default function ExperiencesPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        roleId: form.roleId?.trim() || form.roleEn?.trim() || '',
+        roleEn: form.roleEn?.trim() || form.roleId?.trim() || '',
+        durationId: form.durationId?.trim() || form.durationEn?.trim() || '',
+        durationEn: form.durationEn?.trim() || autoTranslateDate(form.durationId) || form.durationId?.trim() || '',
+        descriptionId: form.descriptionId?.trim() || form.descriptionEn?.trim() || '',
+        descriptionEn: form.descriptionEn?.trim() || form.descriptionId?.trim() || '',
+      };
       const formData = new FormData();
-      Object.entries(form).forEach(([key, val]) => formData.append(key, String(val)));
+      Object.entries(payload).forEach(([key, val]) => formData.append(key, String(val)));
       if (file) formData.append('image', file);
       if (removeImage) formData.append('removeImage', 'true');
 
@@ -173,61 +225,31 @@ export default function ExperiencesPage() {
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
               </div>
 
-              {/* Language Toggle */}
-              <div className="flex bg-muted p-1 rounded-xl w-fit border border-border mb-2">
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('id')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'id' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  Indonesian (ID)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('en')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'en' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  English (EN)
-                </button>
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Nama Perusahaan</label>
+                  <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Nama Perusahaan</label>
                   <input type="text" value={form.company as string} onChange={e => setForm(p => ({ ...p, company: e.target.value }))} placeholder="PT. Contoh Indonesia" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
                 </div>
                 
-                {formLanguage === 'id' ? (
-                  <>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Posisi (ID)</label>
-                      <input type="text" value={form.roleId} onChange={e => setForm(p => ({ ...p, roleId: e.target.value }))} placeholder="Pengembang Frontend" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Periode (ID)</label>
-                      <input type="text" value={form.durationId} onChange={e => setForm(p => ({ ...p, durationId: e.target.value }))} placeholder="Jan 2024 - Saat ini" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Deskripsi (ID)</label>
-                      <textarea value={form.descriptionId} onChange={e => setForm(p => ({ ...p, descriptionId: e.target.value }))} placeholder="Tanggung jawab dan pencapaian (ID)..." rows={4} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Role (EN)</label>
-                      <input type="text" value={form.roleEn} onChange={e => setForm(p => ({ ...p, roleEn: e.target.value }))} placeholder="Frontend Developer" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                    </div>
-                    <div className="col-span-2 sm:col-span-1">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Duration (EN)</label>
-                      <input type="text" value={form.durationEn} onChange={e => setForm(p => ({ ...p, durationEn: e.target.value }))} placeholder="Jan 2024 - Present" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Description (EN)</label>
-                      <textarea value={form.descriptionEn} onChange={e => setForm(p => ({ ...p, descriptionEn: e.target.value }))} placeholder="Responsibilities and achievements (EN)..." rows={4} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
-                    </div>
-                  </>
-                )}
+                <div className="col-span-2">
+                  <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Posisi</label>
+                  <input type="text" value={form.roleId} onChange={e => handleIdChange('roleId', e.target.value)} placeholder="Pengembang Frontend" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                </div>
+                <div className="col-span-2">
+                  <PeriodDatePicker
+                    label="Periode"
+                    valueId={form.durationId}
+                    valueEn={form.durationEn}
+                    onChange={(idVal, enVal) => {
+                      setForm(p => ({ ...p, durationId: idVal, durationEn: enVal }));
+                    }}
+                    required
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Deskripsi</label>
+                  <textarea value={form.descriptionId} onChange={e => handleIdChange('descriptionId', e.target.value)} placeholder="Tanggung jawab dan pencapaian..." rows={4} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
+                </div>
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-2.5 rounded-xl border border-border text-muted-foreground text-sm hover:text-muted-foreground hover:bg-muted transition-all">Batal</button>

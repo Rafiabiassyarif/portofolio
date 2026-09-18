@@ -37,6 +37,17 @@ export function Skills() {
   }, {} as Record<string, Skill[]>);
 
   const getCategoryDesc = (cat: string) => {
+    if (language === 'id') {
+      switch(cat) {
+        case 'Frontend': return "Membangun antarmuka web yang rapi, responsif, dan terukur.";
+        case 'Backend': return "Mengembangkan API yang andal dan logika sisi server yang kokoh.";
+        case 'Database': return "Merancang penyimpanan data yang efisien, terstruktur, dan aman.";
+        case 'Tools': return "Menggunakan alur kerja modern, CI/CD, dan kontrol versi.";
+        case 'Mobile': return "Membuat aplikasi mobile yang responsif dan berkinerja tinggi.";
+        case 'Other': return "Keahlian teknis tambahan dan kapabilitas lainnya.";
+        default: return "";
+      }
+    }
     switch(cat) {
       case 'Frontend': return "Building clear and scalable interfaces for web applications.";
       case 'Backend': return "Developing robust APIs and server-side logic.";
@@ -54,10 +65,10 @@ export function Skills() {
       {/* Title Section */}
       <div className="relative mb-20 text-center md:text-left">
         <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
-          SERVICES
+          {language === 'id' ? 'LAYANAN' : 'SERVICES'}
         </h1>
         <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
-          SERVICES & SKILLS
+          {language === 'id' ? 'LAYANAN & KEAHLIAN' : 'SERVICES & SKILLS'}
         </h2>
       </div>
 

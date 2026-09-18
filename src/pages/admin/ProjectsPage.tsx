@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Pencil, Trash2, X, Save, Upload, Github, ExternalLink, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Upload, Github, ExternalLink, Image as ImageIcon, Eye, EyeOff, FolderKanban, Link, Image, Sparkles } from 'lucide-react';
 import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -13,7 +13,6 @@ export default function ProjectsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [formLanguage, setFormLanguage] = useState<'id'|'en'>('id');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
@@ -22,9 +21,14 @@ export default function ProjectsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchData = async () => {
-    const data = await api.getProjects();
-    setItems(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const data = await api.getProjects();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { fetchData(); }, []);
 
@@ -36,6 +40,18 @@ export default function ProjectsPage() {
     setImagePreview(item.imageUrl ? `${API_URL}${item.imageUrl}` : null);
     setRemoveImage(false);
     setModalOpen(true);
+  };
+
+  const handleIdChange = (field: 'titleId' | 'descriptionId', value: string) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'titleId') {
+        if (!prev.titleEn || prev.titleEn === prev.titleId) updated.titleEn = value;
+      } else if (field === 'descriptionId') {
+        if (!prev.descriptionEn || prev.descriptionEn === prev.descriptionId) updated.descriptionEn = value;
+      }
+      return updated;
+    });
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,8 +73,15 @@ export default function ProjectsPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        titleId: form.titleId?.trim() || form.titleEn?.trim() || '',
+        titleEn: form.titleEn?.trim() || form.titleId?.trim() || '',
+        descriptionId: form.descriptionId?.trim() || form.descriptionEn?.trim() || '',
+        descriptionEn: form.descriptionEn?.trim() || form.descriptionId?.trim() || '',
+      };
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
+      Object.entries(payload).forEach(([k, v]) => fd.append(k, String(v)));
       if (imageFile) fd.append('image', imageFile);
       if (removeImage) fd.append('removeImage', 'true');
       if (editing) {
@@ -181,47 +204,14 @@ export default function ProjectsPage() {
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
               </div>
 
-              {/* Language Toggle */}
-              <div className="flex bg-muted p-1 rounded-xl w-fit border border-border">
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('id')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'id' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  Indonesian (ID)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('en')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'en' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  English (EN)
-                </button>
-              </div>
-
-              {formLanguage === 'id' ? (
-                <>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Judul Project (ID)</label>
-                    <input type="text" value={form.titleId} onChange={e => setForm(p => ({ ...p, titleId: e.target.value }))} placeholder="KroomBridge" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Judul Project</label>
+                    <input type="text" value={form.titleId} onChange={e => handleIdChange('titleId', e.target.value)} placeholder="KroomBridge" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Deskripsi (ID)</label>
-                    <textarea value={form.descriptionId} onChange={e => setForm(p => ({ ...p, descriptionId: e.target.value }))} placeholder="Deskripsi singkat dalam Bahasa Indonesia..." rows={3} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
+                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Deskripsi</label>
+                    <textarea value={form.descriptionId} onChange={e => handleIdChange('descriptionId', e.target.value)} placeholder="Deskripsi singkat proyek..." rows={3} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
                   </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Project Title (EN)</label>
-                    <input type="text" value={form.titleEn} onChange={e => setForm(p => ({ ...p, titleEn: e.target.value }))} placeholder="KroomBridge" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Description (EN)</label>
-                    <textarea value={form.descriptionEn} onChange={e => setForm(p => ({ ...p, descriptionEn: e.target.value }))} placeholder="Short description in English..." rows={3} className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none" />
-                  </div>
-                </>
-              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

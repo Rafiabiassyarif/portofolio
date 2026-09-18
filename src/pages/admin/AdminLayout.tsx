@@ -164,7 +164,13 @@ export default function AdminLayout() {
 
         {/* Page Content */}
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
-          <Outlet />
+          <React.Suspense fallback={
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
+            <Outlet />
+          </React.Suspense>
         </main>
       </div>
     </div>

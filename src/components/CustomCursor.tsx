@@ -1,11 +1,14 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUpRight, Github, Mail, Eye } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const isTouchDevice = typeof window !== 'undefined'
   && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 export function CustomCursor() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/xadmin');
   const [hoverType, setHoverType] = useState<string | null>(null);
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -13,14 +16,13 @@ export function CustomCursor() {
   const pendingX = useRef(-100);
   const pendingY = useRef(-100);
 
-  // Skip entirely on touch devices
-  if (isTouchDevice) return null;
-
   const springConfig = { damping: 28, stiffness: 500 };
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
+    if (isTouchDevice || isAdmin) return;
+
     const moveCursor = (e: MouseEvent) => {
       pendingX.current = e.clientX - 16;
       pendingY.current = e.clientY - 16;
@@ -58,7 +60,9 @@ export function CustomCursor() {
       window.removeEventListener("mouseover", handleMouseOver);
       if (rafId.current !== null) cancelAnimationFrame(rafId.current);
     };
-  }, [cursorX, cursorY]);
+  }, [cursorX, cursorY, isAdmin]);
+
+  if (isTouchDevice || isAdmin) return null;
 
   const renderIcon = () => {
     switch (hoverType) {

@@ -1,10 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContent } from "../context/ContentContext";
+import { useLanguage } from "../context/LanguageContext";
 import { Linkedin, Instagram } from "lucide-react";
 
 export function Footer() {
   const { content: t } = useContent();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const clickCount = useRef(0);
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,7 +51,7 @@ export function Footer() {
             RAFI.
           </span>
           <span className="text-foreground/60">
-            © {new Date().getFullYear()} {t.footer.copyright || "All rights reserved"}
+            © {new Date().getFullYear()} {(t.footer as any).allRightsReserved || (language === 'id' ? 'Hak cipta dilindungi.' : 'All rights reserved.')}
           </span>
         </div>
 

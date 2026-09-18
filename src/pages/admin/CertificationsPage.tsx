@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Pencil, Trash2, X, Save, Upload, Award, Link, Image, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Upload, Award, Link, Image, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { autoTranslateDate } from '../../utils/bilingualHelper';
+import { PeriodDatePicker } from '../../components/admin/PeriodDatePicker';
 
 interface Certification { id: number; titleId: string; titleEn: string; issuerId: string; issuerEn: string; dateId: string; dateEn: string; imageUrl: string | null; credentialUrl: string | null; order: number; isVisible: boolean; }
 const emptyForm = { titleId: '', titleEn: '', issuerId: '', issuerEn: '', dateId: '', dateEn: '', credentialUrl: '', order: 0 };
@@ -13,7 +15,6 @@ export default function CertificationsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Certification | null>(null);
   const [form, setForm] = useState(emptyForm);
-  const [formLanguage, setFormLanguage] = useState<'id'|'en'>('id');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
@@ -22,9 +23,14 @@ export default function CertificationsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchData = async () => {
-    const data = await api.getCertifications();
-    setItems(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const data = await api.getCertifications();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { fetchData(); }, []);
 
@@ -36,6 +42,22 @@ export default function CertificationsPage() {
     setImagePreview(item.imageUrl ? `${API_URL}${item.imageUrl}` : null);
     setRemoveImage(false);
     setModalOpen(true);
+  };
+
+  const handleIdChange = (field: 'titleId' | 'issuerId' | 'dateId', value: string) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'titleId') {
+        if (!prev.titleEn || prev.titleEn === prev.titleId) updated.titleEn = value;
+      } else if (field === 'issuerId') {
+        if (!prev.issuerEn || prev.issuerEn === prev.issuerId) updated.issuerEn = value;
+      } else if (field === 'dateId') {
+        if (!prev.dateEn || prev.dateEn === prev.dateId || prev.dateEn === autoTranslateDate(prev.dateId) || prev.dateEn === 'Score: Premium') {
+          updated.dateEn = autoTranslateDate(value);
+        }
+      }
+      return updated;
+    });
   };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,8 +79,17 @@ export default function CertificationsPage() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        titleId: form.titleId?.trim() || form.titleEn?.trim() || '',
+        titleEn: form.titleEn?.trim() || form.titleId?.trim() || '',
+        issuerId: form.issuerId?.trim() || form.issuerEn?.trim() || '',
+        issuerEn: form.issuerEn?.trim() || form.issuerId?.trim() || '',
+        dateId: form.dateId?.trim() || form.dateEn?.trim() || '',
+        dateEn: form.dateEn?.trim() || autoTranslateDate(form.dateId) || form.dateId?.trim() || '',
+      };
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
+      Object.entries(payload).forEach(([k, v]) => fd.append(k, String(v)));
       if (imageFile) fd.append('image', imageFile);
       if (removeImage) fd.append('removeImage', 'true');
       if (editing) {
@@ -178,55 +209,27 @@ export default function CertificationsPage() {
                 <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
               </div>
 
-              {/* Language Toggle */}
-              <div className="flex bg-muted p-1 rounded-xl w-fit border border-border">
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('id')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'id' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  Indonesian (ID)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormLanguage('en')}
-                  className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'en' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-                >
-                  English (EN)
-                </button>
-              </div>
-
-              {formLanguage === 'id' ? (
                 <div className="grid grid-cols-1 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Nama Sertifikat (ID)</label>
-                    <input type="text" value={form.titleId} onChange={e => setForm(p => ({ ...p, titleId: e.target.value }))} placeholder="Oracle Database Design" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Nama Sertifikat</label>
+                    <input type="text" value={form.titleId} onChange={e => handleIdChange('titleId', e.target.value)} placeholder="Oracle Database Design" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Penerbit / Deskripsi (ID)</label>
-                    <input type="text" value={form.issuerId} onChange={e => setForm(p => ({ ...p, issuerId: e.target.value }))} placeholder="Desain Basis Data" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5 font-semibold">Penerbit / Deskripsi</label>
+                    <input type="text" value={form.issuerId} onChange={e => handleIdChange('issuerId', e.target.value)} placeholder="Desain Basis Data" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Tanggal (ID)</label>
-                    <input type="text" value={form.dateId} onChange={e => setForm(p => ({ ...p, dateId: e.target.value }))} placeholder="Mei 2026" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
+                    <PeriodDatePicker
+                      label="Tanggal"
+                      valueId={form.dateId}
+                      valueEn={form.dateEn}
+                      onChange={(idVal, enVal) => {
+                        setForm(p => ({ ...p, dateId: idVal, dateEn: enVal }));
+                      }}
+                      required
+                    />
                   </div>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-3">
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Certificate Name (EN)</label>
-                    <input type="text" value={form.titleEn} onChange={e => setForm(p => ({ ...p, titleEn: e.target.value }))} placeholder="Oracle Database Design" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Issuer / Description (EN)</label>
-                    <input type="text" value={form.issuerEn} onChange={e => setForm(p => ({ ...p, issuerEn: e.target.value }))} placeholder="Database Design" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Date (EN)</label>
-                    <input type="text" value={form.dateEn} onChange={e => setForm(p => ({ ...p, dateEn: e.target.value }))} placeholder="May 2026" required className="w-full bg-muted border border-border rounded-xl px-4 py-2.5 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all" />
-                  </div>
-                </div>
-              )}
 
               <div>
                 <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-1.5">Link Kredensial</label>

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, Upload, User, Link as LinkIcon } from 'lucide-react';
+import { Save, Upload, User, Sparkles, Link as LinkIcon } from 'lucide-react';
 import { api, API_URL } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
 export default function HeroPage() {
   const { token } = useAuth();
   const [form, setForm] = useState({
-    greetingId: 'Halo, saya',
-    greetingEn: 'Hi there, I am',
+    greetingId: '',
+    greetingEn: '',
     name: '',
     titleId: '',
     titleEn: '',
@@ -16,24 +16,23 @@ export default function HeroPage() {
     resumeUrl: '',
     instagramUrl: '',
     linkedinUrl: '',
-    githubUrl: ''
+    githubUrl: '',
   });
-  const [formLanguage, setFormLanguage] = useState<'id'|'en'>('id');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [removeProfileImg, setRemoveProfileImg] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     api.getHero().then(data => {
       if (data && !data.message) {
         setForm({
-          greetingId: data.greetingId || 'Halo, saya',
-          greetingEn: data.greetingEn || 'Hi there, I am',
+          greetingId: data.greetingId || '',
+          greetingEn: data.greetingEn || '',
           name: data.name || '',
           titleId: data.titleId || '',
           titleEn: data.titleEn || '',
@@ -46,8 +45,24 @@ export default function HeroPage() {
         });
         setCurrentImage(data.profileImgUrl ? `${API_URL}${data.profileImgUrl}` : null);
       }
-    });
+    }).catch(err => console.error(err));
   }, []);
+
+  const handleIdChange = (field: 'greetingId' | 'titleId' | 'descriptionId', value: string) => {
+    setForm(prev => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'greetingId') {
+        if (!prev.greetingEn || prev.greetingEn === prev.greetingId || prev.greetingEn === 'Hi there, I am') {
+          updated.greetingEn = value.toLowerCase().includes('halo') ? 'Hi there, I am' : value;
+        }
+      } else if (field === 'titleId') {
+        if (!prev.titleEn || prev.titleEn === prev.titleId) updated.titleEn = value;
+      } else if (field === 'descriptionId') {
+        if (!prev.descriptionEn || prev.descriptionEn === prev.descriptionId) updated.descriptionEn = value;
+      }
+      return updated;
+    });
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,8 +86,17 @@ export default function HeroPage() {
     setError('');
     setSuccess('');
     try {
+      const payload = {
+        ...form,
+        greetingId: form.greetingId?.trim() || form.greetingEn?.trim() || 'Halo, saya',
+        greetingEn: form.greetingEn?.trim() || form.greetingId?.trim() || 'Hi there, I am',
+        titleId: form.titleId?.trim() || form.titleEn?.trim() || '',
+        titleEn: form.titleEn?.trim() || form.titleId?.trim() || '',
+        descriptionId: form.descriptionId?.trim() || form.descriptionEn?.trim() || '',
+        descriptionEn: form.descriptionEn?.trim() || form.descriptionId?.trim() || '',
+      };
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, String(v)));
+      Object.entries(payload).forEach(([k, v]) => fd.append(k, String(v)));
       if (imageFile) fd.append('profileImg', imageFile);
       if (removeProfileImg) fd.append('removeProfileImg', 'true');
       const res = await api.updateHero(fd, token!);
@@ -150,93 +174,36 @@ export default function HeroPage() {
             />
           </div>
 
-          <div className="md:col-span-2">
-            {/* Language Toggle */}
-            <div className="flex bg-muted p-1 rounded-xl w-fit border border-border mb-2">
-              <button
-                type="button"
-                onClick={() => setFormLanguage('id')}
-                className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'id' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-              >
-                Indonesian (ID)
-              </button>
-              <button
-                type="button"
-                onClick={() => setFormLanguage('en')}
-                className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors ${formLanguage === 'en' ? 'bg-indigo-600 text-foreground' : 'text-muted-foreground hover:text-muted-foreground'}`}
-              >
-                English (EN)
-              </button>
-            </div>
-          </div>
-
-          {formLanguage === 'id' ? (
-            <>
               <div className="md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Kalimat Pembuka (ID)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Kalimat Pembuka</label>
                 <input
                   type="text"
                   value={form.greetingId}
-                  onChange={e => setForm(p => ({ ...p, greetingId: e.target.value }))}
+                  onChange={e => handleIdChange('greetingId', e.target.value)}
                   placeholder="Halo, saya"
                   className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all"
                 />
               </div>
               <div className="md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Jabatan (ID)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Jabatan</label>
                 <input
                   type="text"
                   value={form.titleId}
-                  onChange={e => setForm(p => ({ ...p, titleId: e.target.value }))}
+                  onChange={e => handleIdChange('titleId', e.target.value)}
                   placeholder="Pengembang Fullstack"
                   className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all"
                 />
               </div>
               <div className="md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Deskripsi (ID)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Deskripsi</label>
                 <textarea
                   value={form.descriptionId}
-                  onChange={e => setForm(p => ({ ...p, descriptionId: e.target.value }))}
-                  placeholder="Tulis deskripsi singkat dalam Bahasa Indonesia..."
+                  onChange={e => handleIdChange('descriptionId', e.target.value)}
+                  placeholder="Tulis deskripsi singkat..."
                   rows={4}
                   className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none"
                 />
               </div>
-            </>
-          ) : (
-            <>
-              <div className="md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Greeting (EN)</label>
-                <input
-                  type="text"
-                  value={form.greetingEn}
-                  onChange={e => setForm(p => ({ ...p, greetingEn: e.target.value }))}
-                  placeholder="Hi there, I am"
-                  className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all"
-                />
-              </div>
-              <div className="md:col-span-1">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Title (EN)</label>
-                <input
-                  type="text"
-                  value={form.titleEn}
-                  onChange={e => setForm(p => ({ ...p, titleEn: e.target.value }))}
-                  placeholder="Fullstack Developer"
-                  className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Description (EN)</label>
-                <textarea
-                  value={form.descriptionEn}
-                  onChange={e => setForm(p => ({ ...p, descriptionEn: e.target.value }))}
-                  placeholder="Write a short description in English..."
-                  rows={4}
-                  className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-foreground text-sm placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none"
-                />
-              </div>
-            </>
-          )}
 
           <div className="md:col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Link Resume / CV</label>

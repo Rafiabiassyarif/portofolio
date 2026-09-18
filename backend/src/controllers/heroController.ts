@@ -38,7 +38,20 @@ export const updateHero = async (req: Request, res: Response): Promise<any> => {
       resumeUrl = null;
     }
 
-    const data = { greetingId, greetingEn, name, titleId, titleEn, descriptionId, descriptionEn, instagramUrl, linkedinUrl, githubUrl, resumeUrl, profileImgUrl };
+    const data = { 
+      greetingId: greetingId !== undefined ? (greetingId || greetingEn || existing.greetingId) : existing.greetingId, 
+      greetingEn: greetingEn !== undefined ? (greetingEn || greetingId || existing.greetingEn) : existing.greetingEn, 
+      name: name !== undefined ? name : existing.name, 
+      titleId: titleId !== undefined ? (titleId || titleEn || existing.titleId) : existing.titleId, 
+      titleEn: titleEn !== undefined ? (titleEn || titleId || existing.titleEn) : existing.titleEn, 
+      descriptionId: descriptionId !== undefined ? (descriptionId || descriptionEn || existing.descriptionId) : existing.descriptionId, 
+      descriptionEn: descriptionEn !== undefined ? (descriptionEn || descriptionId || existing.descriptionEn) : existing.descriptionEn, 
+      instagramUrl, 
+      linkedinUrl, 
+      githubUrl, 
+      resumeUrl, 
+      profileImgUrl 
+    };
     const updated = await prisma.heroContent.update({ where: { id: existing.id }, data });
 
     res.json(updated);

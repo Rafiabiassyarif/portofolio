@@ -28,9 +28,14 @@ export default function SkillsPage() {
   const [customCategory, setCustomCategory] = useState('');
 
   const fetchData = async () => {
-    const data = await api.getSkills();
-    setItems(Array.isArray(data) ? data : []);
-    setLoading(false);
+    try {
+      const data = await api.getSkills();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { fetchData(); }, []);
 
