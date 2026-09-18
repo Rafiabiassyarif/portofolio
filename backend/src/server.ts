@@ -27,8 +27,33 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files statically
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+import fs from 'fs';
+import { getMedia, migrateDiskUploadsToDb } from './services/mediaService';
+
+// Serve uploaded files directly from MySQL database (with disk fallback)
+app.get('/uploads/:filename', async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const media = await getMedia(filename);
+
+    if (media) {
+      res.setHeader('Content-Type', media.mimeType || 'application/octet-stream');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.send(media.data);
+    }
+
+    // Disk fallback if file exists on filesystem
+    const diskPath = path.join(__dirname, '../uploads', filename);
+    if (fs.existsSync(diskPath)) {
+      return res.sendFile(diskPath);
+    }
+
+    return res.status(404).json({ message: 'File not found' });
+  } catch (error) {
+    console.error('Error serving media file:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Routes
 app.use('/api/admin', adminRoutes);
@@ -46,6 +71,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+  // Automatically migrate existing disk uploads to DB if any
+  try {
+    await migrateDiskUploadsToDb();
+  } catch (err) {
+    console.error('Disk upload migration check error:', err);
+  }
 });

@@ -1,19 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import fs from 'fs';
-import path from 'path';
-
-const deleteImage = (imageUrl: string | null) => {
-  if (imageUrl) {
-    const filename = imageUrl.split('/').pop();
-    if (filename) {
-      const filepath = path.join(__dirname, '../../uploads', filename);
-      if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath);
-      }
-    }
-  }
-};
+import { saveMedia, deleteMedia } from '../services/mediaService';
 
 export const getExperiences = async (req: Request, res: Response) => {
   try {
@@ -27,7 +14,7 @@ export const getExperiences = async (req: Request, res: Response) => {
 export const createExperience = async (req: Request, res: Response): Promise<any> => {
   try {
     const { roleId, roleEn, company, durationId, durationEn, descriptionId, descriptionEn, order, isVisible } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? await saveMedia(req.file) : null;
 
     const experience = await prisma.experience.create({
       data: { 
@@ -38,7 +25,8 @@ export const createExperience = async (req: Request, res: Response): Promise<any
       }
     });
     res.status(201).json(experience);
-  } catch {
+  } catch (error) {
+    console.error('Error creating experience:', error);
     res.status(500).json({ message: 'Error creating experience' });
   }
 };
@@ -53,10 +41,10 @@ export const updateExperience = async (req: Request, res: Response): Promise<any
 
     let imageUrl = existing.imageUrl;
     if (req.file) {
-      deleteImage(existing.imageUrl);
-      imageUrl = `/uploads/${req.file.filename}`;
+      await deleteMedia(existing.imageUrl);
+      imageUrl = await saveMedia(req.file);
     } else if (removeImage === 'true' || removeImage === true) {
-      deleteImage(existing.imageUrl);
+      await deleteMedia(existing.imageUrl);
       imageUrl = null;
     }
 
@@ -70,7 +58,8 @@ export const updateExperience = async (req: Request, res: Response): Promise<any
       }
     });
     res.json(experience);
-  } catch {
+  } catch (error) {
+    console.error('Error updating experience:', error);
     res.status(500).json({ message: 'Error updating experience' });
   }
 };
@@ -79,11 +68,12 @@ export const deleteExperience = async (req: Request, res: Response): Promise<any
   try {
     const { id } = req.params;
     const existing = await prisma.experience.findUnique({ where: { id: parseInt(id as string) } });
-    if (existing) deleteImage(existing.imageUrl);
+    if (existing) await deleteMedia(existing.imageUrl);
 
     await prisma.experience.delete({ where: { id: parseInt(id as string) } });
     res.json({ message: 'Experience deleted successfully' });
-  } catch {
+  } catch (error) {
+    console.error('Error deleting experience:', error);
     res.status(500).json({ message: 'Error deleting experience' });
   }
 };

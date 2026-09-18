@@ -1,17 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import fs from 'fs';
-import path from 'path';
-
-const deleteImage = (imageUrl: string | null) => {
-  if (imageUrl) {
-    const filename = imageUrl.split('/').pop();
-    if (filename) {
-      const filepath = path.join(__dirname, '../../uploads', filename);
-      if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-    }
-  }
-};
+import { saveMedia, deleteMedia } from '../services/mediaService';
 
 export const getHero = async (req: Request, res: Response) => {
   try {
@@ -33,19 +22,19 @@ export const updateHero = async (req: Request, res: Response): Promise<any> => {
     let profileImgUrl = existing.profileImgUrl;
     let resumeUrl = existing.resumeUrl;
 
-    if (files['profileImg'] && files['profileImg'][0]) {
-      deleteImage(existing.profileImgUrl);
-      profileImgUrl = `/uploads/${files['profileImg'][0].filename}`;
+    if (files && files['profileImg'] && files['profileImg'][0]) {
+      await deleteMedia(existing.profileImgUrl);
+      profileImgUrl = await saveMedia(files['profileImg'][0]);
     } else if (removeProfileImg === 'true' || removeProfileImg === true) {
-      deleteImage(existing.profileImgUrl);
+      await deleteMedia(existing.profileImgUrl);
       profileImgUrl = null;
     }
 
-    if (files['resume'] && files['resume'][0]) {
-      deleteImage(existing.resumeUrl);
-      resumeUrl = `/uploads/${files['resume'][0].filename}`;
+    if (files && files['resume'] && files['resume'][0]) {
+      await deleteMedia(existing.resumeUrl);
+      resumeUrl = await saveMedia(files['resume'][0]);
     } else if (removeResume === 'true' || removeResume === true) {
-      deleteImage(existing.resumeUrl);
+      await deleteMedia(existing.resumeUrl);
       resumeUrl = null;
     }
 
@@ -53,7 +42,8 @@ export const updateHero = async (req: Request, res: Response): Promise<any> => {
     const updated = await prisma.heroContent.update({ where: { id: existing.id }, data });
 
     res.json(updated);
-  } catch {
+  } catch (error) {
+    console.error('Error updating hero content:', error);
     res.status(500).json({ message: 'Error updating hero content' });
   }
 };
@@ -65,10 +55,10 @@ export const upsertHero = async (req: Request, res: Response): Promise<any> => {
     let profileImgUrl = existing?.profileImgUrl || null;
 
     if (req.file) {
-      if (existing?.profileImgUrl) deleteImage(existing.profileImgUrl);
-      profileImgUrl = `/uploads/${req.file.filename}`;
+      if (existing?.profileImgUrl) await deleteMedia(existing.profileImgUrl);
+      profileImgUrl = await saveMedia(req.file);
     } else if (removeProfileImg === 'true' || removeProfileImg === true) {
-      if (existing?.profileImgUrl) deleteImage(existing.profileImgUrl);
+      if (existing?.profileImgUrl) await deleteMedia(existing.profileImgUrl);
       profileImgUrl = null;
     }
 
@@ -78,7 +68,8 @@ export const upsertHero = async (req: Request, res: Response): Promise<any> => {
       : await prisma.heroContent.create({ data });
 
     res.json(hero);
-  } catch {
+  } catch (error) {
+    console.error('Error upserting hero content:', error);
     res.status(500).json({ message: 'Error upserting hero content' });
   }
 };

@@ -1,20 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import fs from 'fs';
-import path from 'path';
-
-// Helper to delete old image
-const deleteImage = (imageUrl: string | null) => {
-  if (imageUrl) {
-    const filename = imageUrl.split('/').pop();
-    if (filename) {
-      const filepath = path.join(__dirname, '../../uploads', filename);
-      if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath);
-      }
-    }
-  }
-};
+import { saveMedia, deleteMedia } from '../services/mediaService';
 
 export const getProjects = async (req: Request, res: Response) => {
   try {
@@ -30,7 +16,7 @@ export const getProjects = async (req: Request, res: Response) => {
 export const createProject = async (req: Request, res: Response): Promise<any> => {
   try {
     const { titleId, titleEn, descriptionId, descriptionEn, githubUrl, demoUrl, tags, backgroundColor, order, isVisible } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? await saveMedia(req.file) : null;
 
     const newProject = await prisma.project.create({
       data: {
@@ -50,6 +36,7 @@ export const createProject = async (req: Request, res: Response): Promise<any> =
 
     res.status(201).json(newProject);
   } catch (error) {
+    console.error('Error creating project:', error);
     res.status(500).json({ message: 'Error creating project' });
   }
 };
@@ -64,10 +51,10 @@ export const updateProject = async (req: Request, res: Response): Promise<any> =
 
     let imageUrl = existingProject.imageUrl;
     if (req.file) {
-      deleteImage(existingProject.imageUrl);
-      imageUrl = `/uploads/${req.file.filename}`;
+      await deleteMedia(existingProject.imageUrl);
+      imageUrl = await saveMedia(req.file);
     } else if (removeImage === 'true' || removeImage === true) {
-      deleteImage(existingProject.imageUrl);
+      await deleteMedia(existingProject.imageUrl);
       imageUrl = null;
     }
 
@@ -90,6 +77,7 @@ export const updateProject = async (req: Request, res: Response): Promise<any> =
 
     res.json(updatedProject);
   } catch (error) {
+    console.error('Error updating project:', error);
     res.status(500).json({ message: 'Error updating project' });
   }
 };
@@ -101,11 +89,12 @@ export const deleteProject = async (req: Request, res: Response): Promise<any> =
     
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    deleteImage(project.imageUrl);
+    await deleteMedia(project.imageUrl);
     await prisma.project.delete({ where: { id: parseInt(id as string) } });
 
     res.json({ message: 'Project deleted successfully' });
   } catch (error) {
+    console.error('Error deleting project:', error);
     res.status(500).json({ message: 'Error deleting project' });
   }
 };

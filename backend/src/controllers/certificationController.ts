@@ -1,17 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import fs from 'fs';
-import path from 'path';
-
-const deleteImage = (imageUrl: string | null) => {
-  if (imageUrl) {
-    const filename = imageUrl.split('/').pop();
-    if (filename) {
-      const filepath = path.join(__dirname, '../../uploads', filename);
-      if (fs.existsSync(filepath)) fs.unlinkSync(filepath);
-    }
-  }
-};
+import { saveMedia, deleteMedia } from '../services/mediaService';
 
 export const getCertifications = async (req: Request, res: Response) => {
   try {
@@ -25,12 +14,13 @@ export const getCertifications = async (req: Request, res: Response) => {
 export const createCertification = async (req: Request, res: Response): Promise<any> => {
   try {
     const { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, order, isVisible } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? await saveMedia(req.file) : null;
     const cert = await prisma.certification.create({
       data: { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, imageUrl, order: order ? parseInt(order) : 0, isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : true }
     });
     res.status(201).json(cert);
-  } catch {
+  } catch (error) {
+    console.error('Error creating certification:', error);
     res.status(500).json({ message: 'Error creating certification' });
   }
 };
@@ -44,10 +34,10 @@ export const updateCertification = async (req: Request, res: Response): Promise<
 
     let imageUrl = existing.imageUrl;
     if (req.file) {
-      deleteImage(existing.imageUrl);
-      imageUrl = `/uploads/${req.file.filename}`;
+      await deleteMedia(existing.imageUrl);
+      imageUrl = await saveMedia(req.file);
     } else if (removeImage === 'true' || removeImage === true) {
-      deleteImage(existing.imageUrl);
+      await deleteMedia(existing.imageUrl);
       imageUrl = null;
     }
 
@@ -56,7 +46,8 @@ export const updateCertification = async (req: Request, res: Response): Promise<
       data: { titleId, titleEn, issuerId, issuerEn, dateId, dateEn, credentialUrl, imageUrl, order: order !== undefined ? parseInt(order) : existing.order, isVisible: isVisible !== undefined ? isVisible === 'true' || isVisible === true : existing.isVisible }
     });
     res.json(cert);
-  } catch {
+  } catch (error) {
+    console.error('Error updating certification:', error);
     res.status(500).json({ message: 'Error updating certification' });
   }
 };
@@ -66,10 +57,11 @@ export const deleteCertification = async (req: Request, res: Response): Promise<
     const { id } = req.params;
     const cert = await prisma.certification.findUnique({ where: { id: parseInt(id as string) } });
     if (!cert) return res.status(404).json({ message: 'Not found' });
-    deleteImage(cert.imageUrl);
+    await deleteMedia(cert.imageUrl);
     await prisma.certification.delete({ where: { id: parseInt(id as string) } });
     res.json({ message: 'Certification deleted' });
-  } catch {
+  } catch (error) {
+    console.error('Error deleting certification:', error);
     res.status(500).json({ message: 'Error deleting certification' });
   }
 };
