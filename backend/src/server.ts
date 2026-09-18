@@ -28,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 import fs from 'fs';
+import prisma from './lib/prisma';
 import { getMedia, migrateDiskUploadsToDb } from './services/mediaService';
 
 // Serve uploaded files directly from MySQL database (with disk fallback)
@@ -76,7 +77,36 @@ app.listen(PORT, async () => {
   // Automatically migrate existing disk uploads to DB if any
   try {
     await migrateDiskUploadsToDb();
+
+    // Auto-migrate legacy "Score: Premium" in certifications
+    await prisma.certification.updateMany({
+      where: {
+        OR: [
+          { dateEn: 'Score: Premium' },
+          { dateId: 'Skor: Premium' },
+        ],
+        titleId: { contains: 'Oracle' },
+      },
+      data: {
+        dateId: '17 Nov 2025',
+        dateEn: 'Nov 17, 2025',
+      },
+    });
+
+    await prisma.certification.updateMany({
+      where: {
+        OR: [
+          { dateEn: 'Score: Premium' },
+          { dateId: 'Skor: Premium' },
+        ],
+        titleId: { contains: 'EPrT' },
+      },
+      data: {
+        dateId: 'Nov 2025',
+        dateEn: 'Nov 2025',
+      },
+    });
   } catch (err) {
-    console.error('Disk upload migration check error:', err);
+    console.error('Disk upload or certification migration error:', err);
   }
 });

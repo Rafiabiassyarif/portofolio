@@ -110,8 +110,8 @@ async function main() {
       titleEn: "Oracle Academy",
       issuerId: "Desain Basis Data dan Pemrograman dengan SQL",
       issuerEn: "Database Design and Programming with SQL",
-      dateId: "Skor: Premium",
-      dateEn: "Score: Premium",
+      dateId: "17 Nov 2025",
+      dateEn: "Nov 17, 2025",
       order: 1
     },
     {
@@ -119,8 +119,8 @@ async function main() {
       titleEn: "EPrT",
       issuerId: "Tes Kemampuan Bahasa Inggris - Universitas Telkom",
       issuerEn: "English Proficiency Test - Telkom University",
-      dateId: "Skor: Premium",
-      dateEn: "Score: Premium",
+      dateId: "Nov 2025",
+      dateEn: "Nov 2025",
       order: 2
     },
     {
