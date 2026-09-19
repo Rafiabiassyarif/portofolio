@@ -39,12 +39,12 @@ export function Footer() {
   };
 
   return (
-    <footer className="py-8 bg-background relative z-10 border-t border-black/5 dark:border-white/5">
-      <div className="w-full px-6 md:px-12 lg:px-24 2xl:px-32 flex flex-col md:flex-row justify-between items-center text-sm font-semibold text-foreground">
+    <footer className="py-8 bg-background relative z-10 border-t border-black/5 dark:border-white/5 overflow-hidden">
+      <div className="w-full px-4 sm:px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-32 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm font-semibold text-foreground text-center sm:text-left">
         
-        <div className="flex items-center gap-6 mb-4 md:mb-0">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6">
           <span 
-            className="text-foreground/60 cursor-default select-none font-bold"
+            className="text-foreground/60 cursor-default select-none font-bold tracking-wider"
             onClick={handleSecretClick}
             title="RAFI."
           >
@@ -55,7 +55,7 @@ export function Footer() {
           </span>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
           <a 
             href="https://www.linkedin.com/in/rafi-abi-assyarif-06b851333" 
             target="_blank" 

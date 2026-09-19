@@ -3,8 +3,12 @@ import { motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowUpRight, Github, Mail, Eye } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
-const isTouchDevice = typeof window !== 'undefined'
-  && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+const isTouchOrMobile = typeof window !== 'undefined' && (
+  window.matchMedia('(pointer: coarse)').matches ||
+  !window.matchMedia('(pointer: fine)').matches ||
+  'ontouchstart' in window ||
+  navigator.maxTouchPoints > 0
+);
 
 export function CustomCursor() {
   const location = useLocation();
@@ -21,7 +25,7 @@ export function CustomCursor() {
   const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    if (isTouchDevice || isAdmin) return;
+    if (isTouchOrMobile || isAdmin) return;
 
     const moveCursor = (e: MouseEvent) => {
       pendingX.current = e.clientX - 16;
@@ -62,7 +66,7 @@ export function CustomCursor() {
     };
   }, [cursorX, cursorY, isAdmin]);
 
-  if (isTouchDevice || isAdmin) return null;
+  if (isTouchOrMobile || isAdmin) return null;
 
   const renderIcon = () => {
     switch (hoverType) {

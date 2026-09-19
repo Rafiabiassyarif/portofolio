@@ -144,13 +144,13 @@ export default function ExperiencesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Experience</h1>
-          <p className="text-muted-foreground text-sm mt-1">Kelola riwayat pengalaman kerja Anda.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Experience</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">Kelola riwayat pengalaman kerja Anda.</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
-          <Plus className="w-4 h-4" /> Tambah
+        <button onClick={openCreate} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02] shadow-sm">
+          <Plus className="w-4 h-4" /> Tambah Experience
         </button>
       </div>
 
@@ -164,22 +164,22 @@ export default function ExperiencesPage() {
       ) : (
         <div className="space-y-3">
           {items.map(item => (
-            <div key={item.id} className={`bg-card border ${item.isVisible ? 'border-border' : 'border-dashed border-border opacity-50'} rounded-2xl p-5 transition-all group`}>
-              <div className="flex items-start justify-between gap-4">
+            <div key={item.id} className={`bg-card border ${item.isVisible ? 'border-border' : 'border-dashed border-border opacity-50'} rounded-2xl p-4 sm:p-5 transition-all group`}>
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">
                   <h3 className="text-foreground font-semibold text-base truncate">{item.roleId} / {item.roleEn}</h3>
-                  <p className="text-indigo-400/80 text-sm">{item.company}</p>
+                  <p className="text-indigo-400/80 text-sm font-medium">{item.company}</p>
                   <p className="text-muted-foreground text-xs mt-1">{item.durationId}</p>
                   {item.descriptionId && <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{item.descriptionId}</p>}
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button onClick={() => handleToggleVisibility(item)} className="p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all">
+                <div className="flex items-center gap-1.5 sm:gap-2 self-end sm:self-start flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50 w-full sm:w-auto justify-end">
+                  <button onClick={() => handleToggleVisibility(item)} className="p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title={item.isVisible ? 'Sembunyikan' : 'Tampilkan'}>
                     {item.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
-                  <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all">
+                  <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title="Edit">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setDeleteId(item.id)} className="p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all">
+                  <button onClick={() => setDeleteId(item.id)} className="p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all" title="Hapus">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -191,9 +191,9 @@ export default function ExperiencesPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-semibold">{editing ? 'Edit Experience' : 'Tambah Experience'}</h2>
               <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-muted-foreground transition-colors"><X className="w-5 h-5" /></button>
             </div>

@@ -49,18 +49,18 @@ export function CustomSectionComponent({ section }: CustomSectionProps) {
     : null;
 
   return (
-    <section id={section.slug} className="py-24 md:py-32 relative z-20 w-full px-6 md:px-12 lg:px-24 2xl:px-32 border-t border-black/5 dark:border-white/5">
-      <div className="relative mb-20 text-center md:text-left">
-        <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
+    <section id={section.slug} className="py-20 sm:py-24 md:py-32 relative z-20 w-full px-4 sm:px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-32 border-t border-black/5 dark:border-white/5 overflow-hidden">
+      <div className="relative mb-14 sm:mb-20 text-center md:text-left overflow-hidden">
+        <h1 className="absolute -top-10 sm:-top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[8vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
           {title.toUpperCase()}
         </h1>
-        <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground relative z-10">
           {title.toUpperCase()}
         </h2>
       </div>
 
       {isCollection ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {items.map((item, idx) => {
             const itemTitle = language === 'id' ? item.titleId : item.titleEn;
             const itemSubtitle = language === 'id' ? item.subtitleId : item.subtitleEn;

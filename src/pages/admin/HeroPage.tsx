@@ -122,12 +122,12 @@ export default function HeroPage() {
         <p className="text-muted-foreground text-sm mt-1">Edit teks utama dan foto profil di halaman depan portofolio.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-4 sm:p-6 space-y-6">
         {/* Profile Image */}
         <div>
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-3">Foto Profil</label>
-          <div className="flex items-center gap-5">
-            <div className="w-24 h-24 rounded-2xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+            <div className="w-20 sm:w-24 h-20 sm:h-24 rounded-2xl border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted flex-shrink-0">
               {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
               ) : currentImage ? (
@@ -137,11 +137,11 @@ export default function HeroPage() {
               )}
             </div>
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border text-muted-foreground text-sm hover:bg-muted hover:text-foreground transition-all"
+                  className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl bg-card border border-border text-muted-foreground text-xs sm:text-sm hover:bg-muted hover:text-foreground transition-all"
                 >
                   <Upload className="w-4 h-4" />
                   {imageFile ? imageFile.name : 'Upload Foto Baru'}
@@ -150,19 +150,19 @@ export default function HeroPage() {
                   <button
                     type="button"
                     onClick={handleRemoveImage}
-                    className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm hover:bg-red-500/20 transition-all"
+                    className="px-3.5 sm:px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm hover:bg-red-500/20 transition-all"
                   >
                     Hapus
                   </button>
                 )}
               </div>
-              <p className="text-white/25 text-xs mt-2">Format: JPG, PNG, WEBP · Maks 5MB</p>
+              <p className="text-muted-foreground/60 text-xs mt-2">Format: JPG, PNG, WEBP · Maks 5MB</p>
               <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
             </div>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           <div className="md:col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-2">Nama Lengkap</label>
             <input

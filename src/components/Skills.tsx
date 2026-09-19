@@ -60,20 +60,20 @@ export function Skills() {
   };
 
   return (
-    <section id="skills" className="py-24 md:py-32 relative z-20 w-full px-6 md:px-12 lg:px-24 2xl:px-32 border-t border-black/5 dark:border-white/5">
+    <section id="skills" className="py-20 sm:py-24 md:py-32 relative z-20 w-full px-4 sm:px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-32 border-t border-black/5 dark:border-white/5 overflow-hidden">
       
       {/* Title Section */}
-      <div className="relative mb-20 text-center md:text-left">
-        <h1 className="absolute -top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[9vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
+      <div className="relative mb-14 sm:mb-20 text-center md:text-left overflow-hidden">
+        <h1 className="absolute -top-10 sm:-top-12 md:-top-20 left-1/2 md:left-0 -translate-x-1/2 md:translate-x-0 text-[12vw] md:text-[8vw] font-black text-foreground/5 select-none pointer-events-none whitespace-nowrap">
           {language === 'id' ? 'LAYANAN' : 'SERVICES'}
         </h1>
-        <h2 className="text-3xl md:text-5xl font-bold text-foreground relative z-10">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-foreground relative z-10">
           {language === 'id' ? 'LAYANAN & KEAHLIAN' : 'SERVICES & SKILLS'}
         </h2>
       </div>
 
       <div className="flex flex-col border-t border-border">
-        {ALL_CATEGORIES.map((category, idx) => {
+        {ALL_CATEGORIES.map((category) => {
           const categorySkills = groupedSkills[category] || [];
           if (categorySkills.length === 0 && skills.length > 0) return null;
           const isHovered = hoveredCategory === category;
@@ -90,25 +90,25 @@ export function Skills() {
                 className={`absolute inset-0 bg-foreground transition-transform duration-500 origin-left ${isHovered ? 'scale-x-100' : 'scale-x-0'}`}
               />
 
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between py-12 px-6">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between py-8 sm:py-10 md:py-12 px-3 sm:px-6 gap-6 md:gap-4">
                 <div className="w-full md:w-1/2">
-                  <h3 className={`text-3xl md:text-5xl font-bold mb-4 transition-colors duration-300 ${isHovered ? 'text-background' : 'text-foreground'}`}>
+                  <h3 className={`text-2xl sm:text-3xl md:text-5xl font-bold mb-2 sm:mb-4 transition-colors duration-300 ${isHovered ? 'text-background' : 'text-foreground'}`}>
                     {category.toUpperCase()}
                   </h3>
-                  <p className={`text-sm md:text-base max-w-sm transition-colors duration-300 ${isHovered ? 'text-background/80' : 'text-muted-foreground'}`}>
+                  <p className={`text-xs sm:text-sm md:text-base max-w-sm transition-colors duration-300 ${isHovered ? 'text-background/80' : 'text-muted-foreground'}`}>
                     {getCategoryDesc(category)}
                   </p>
                 </div>
 
-                <div className="w-full md:w-1/2 flex items-center justify-between md:justify-end mt-8 md:mt-0">
-                  <div className={`hidden md:flex flex-wrap gap-2 mr-12 transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
-                    {categorySkills.slice(0, 5).map(skill => (
-                      <span key={skill.id} className="text-xs font-semibold px-3 py-1 bg-black/5 dark:bg-white/5 rounded-full">
+                <div className="w-full md:w-1/2 flex flex-col md:flex-row items-start md:items-center justify-between md:justify-end gap-4">
+                  <div className={`flex flex-wrap gap-1.5 sm:gap-2 md:mr-8 lg:mr-12 transition-opacity duration-300 ${isHovered ? 'md:opacity-0' : 'opacity-100'}`}>
+                    {categorySkills.slice(0, 6).map(skill => (
+                      <span key={skill.id} className={`text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-full transition-colors ${isHovered ? 'bg-background/20 text-background' : 'bg-black/5 dark:bg-white/5 text-foreground'}`}>
                         {skill.name}
                       </span>
                     ))}
                   </div>
-                  <ArrowUpRight className={`w-8 h-8 transition-colors duration-300 ${isHovered ? 'text-background' : 'text-foreground'}`} />
+                  <ArrowUpRight className={`w-6 sm:w-8 h-6 sm:h-8 shrink-0 transition-colors duration-300 self-end md:self-auto ${isHovered ? 'text-background' : 'text-foreground'}`} />
                 </div>
               </div>
 

@@ -119,12 +119,12 @@ export default function CertificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Certifications</h1>
-          <p className="text-muted-foreground text-sm mt-1">Kelola sertifikat dan pencapaian Anda.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Certifications</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">Kelola sertifikat dan pencapaian Anda.</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
+        <button onClick={openCreate} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02] shadow-sm">
           <Plus className="w-4 h-4" /> Tambah Sertifikat
         </button>
       </div>
@@ -137,36 +137,40 @@ export default function CertificationsPage() {
           <p className="text-muted-foreground text-sm">Belum ada sertifikat. Tambahkan yang pertama!</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {items.map(item => (
             <div key={item.id} className={`bg-card border ${item.isVisible ? 'border-border' : 'border-dashed border-border opacity-50'} rounded-2xl overflow-hidden transition-all group`}>
-              {/* Image */}
-              <div className="aspect-video bg-card relative overflow-hidden">
+              {/* Certificate Image Preview */}
+              <div className="aspect-video bg-muted relative overflow-hidden flex items-center justify-center border-b border-border">
                 {item.imageUrl ? (
                   <img src={`${API_URL}${item.imageUrl}`} alt={item.titleId} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Award className="w-10 h-10 text-muted-foreground/30" />
-                  </div>
+                  <Award className="w-12 h-12 text-muted-foreground/30" />
                 )}
               </div>
-              <div className="p-5">
-                <h3 className="text-foreground font-semibold mb-1 truncate">{item.titleId}</h3>
-                <p className="text-indigo-400/70 text-sm mb-1">{item.issuerId}</p>
-                <p className="text-muted-foreground text-xs mb-3">{item.dateId}</p>
-                <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  <div className="flex-1 min-w-0">
-                    {item.credentialUrl && (
-                      <a href={item.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-amber-400 transition-colors flex items-center gap-1.5 text-xs">
-                        <Link className="w-3 h-3" /> Lihat Kredensial
-                      </a>
-                    )}
-                  </div>
-                  <button onClick={() => handleToggleVisibility(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all">
+              <div className="p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="text-foreground font-semibold text-base leading-tight truncate">{item.titleId}</h3>
+                  {item.credentialUrl && (
+                    <a href={item.credentialUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-indigo-400 transition-colors flex-shrink-0" title="Lihat Kredensial">
+                      <Link className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+                <p className="text-indigo-400 text-xs sm:text-sm font-medium mb-1">{item.issuerId}</p>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
+                  <span>{item.dateId || '-'}</span>
+                </div>
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-3 pt-3 border-t border-border justify-end">
+                  <button onClick={() => handleToggleVisibility(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title={item.isVisible ? 'Sembunyikan' : 'Tampilkan'}>
                     {item.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
-                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteId(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title="Edit">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setDeleteId(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all" title="Hapus">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -176,13 +180,13 @@ export default function CertificationsPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl my-4">
-            <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-semibold">{editing ? 'Edit Sertifikat' : 'Tambah Sertifikat Baru'}</h2>
               <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-muted-foreground"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               {/* Image Upload */}
               <div>
                 <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-2">Foto Sertifikat</label>

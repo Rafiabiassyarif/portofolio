@@ -111,12 +111,12 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Projects</h1>
-          <p className="text-muted-foreground text-sm mt-1">Kelola semua project portofolio Anda.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Projects</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">Kelola semua project portofolio Anda.</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
+        <button onClick={openCreate} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02] shadow-sm">
           <Plus className="w-4 h-4" /> Tambah Project
         </button>
       </div>
@@ -129,7 +129,7 @@ export default function ProjectsPage() {
           <p className="text-muted-foreground text-sm">Belum ada project. Tambahkan yang pertama!</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {items.map(item => (
             <div key={item.id} className={`bg-card border ${item.isVisible ? 'border-border' : 'border-dashed border-border opacity-50'} rounded-2xl overflow-hidden transition-all group`}>
               {/* Image */}
@@ -142,9 +142,9 @@ export default function ProjectsPage() {
                   </div>
                 )}
               </div>
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <h3 className="text-foreground font-semibold mb-1 truncate">{item.titleId}</h3>
-                <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{item.descriptionId}</p>
+                <p className="text-muted-foreground text-xs sm:text-sm line-clamp-2 mb-3">{item.descriptionId}</p>
                 {item.tags && (
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {item.tags.split(',').map(tag => (
@@ -154,14 +154,18 @@ export default function ProjectsPage() {
                 )}
                 <div className="flex items-center gap-2 pt-2 border-t border-border">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    {item.githubUrl && <a href={item.githubUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-muted-foreground transition-colors"><Github className="w-4 h-4" /></a>}
-                    {item.demoUrl && <a href={item.demoUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-muted-foreground transition-colors"><ExternalLink className="w-4 h-4" /></a>}
+                    {item.githubUrl && <a href={item.githubUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors"><Github className="w-4 h-4" /></a>}
+                    {item.demoUrl && <a href={item.demoUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors"><ExternalLink className="w-4 h-4" /></a>}
                   </div>
-                  <button onClick={() => handleToggleVisibility(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all">
+                  <button onClick={() => handleToggleVisibility(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title={item.isVisible ? 'Sembunyikan' : 'Tampilkan'}>
                     {item.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
-                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleteId(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => openEdit(item)} className="p-1.5 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title="Edit">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setDeleteId(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all" title="Hapus">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -171,13 +175,13 @@ export default function ProjectsPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-xl shadow-2xl my-4">
-            <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-foreground font-semibold">{editing ? 'Edit Project' : 'Tambah Project Baru'}</h2>
-              <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-muted-foreground"><X className="w-5 h-5" /></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
+              <h2 className="text-foreground font-semibold">{editing ? 'Edit Project' : 'Tambah Project'}</h2>
+              <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-muted-foreground transition-colors"><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               {/* Image Upload */}
               <div>
                 <label className="text-xs text-muted-foreground uppercase tracking-widest block mb-2">Gambar Project</label>

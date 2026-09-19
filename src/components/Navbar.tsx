@@ -103,20 +103,20 @@ export function Navbar() {
           isScrolled ? "py-4" : "py-8"
         )}
       >
-        <div className="w-full px-6 md:px-12 lg:px-24 2xl:px-32">
+        <div className="w-full px-4 sm:px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-32">
           <div className={cn(
             "flex items-center justify-between rounded-full transition-all duration-500",
-            isScrolled ? "glass-panel px-6 py-3" : "px-2"
+            isScrolled ? "glass-panel px-4 sm:px-6 py-3" : "px-2"
           )}>
             {/* Left: Logo / Name */}
             <a href="#home" className="flex items-center z-50 transition-transform hover:scale-105">
-              <span className="text-xl font-black tracking-tighter text-foreground uppercase">
+              <span className="text-lg sm:text-xl font-black tracking-tighter text-foreground uppercase">
                 RAFI.
               </span>
             </a>
 
-            {/* Desktop Nav (Center) */}
-            <div className="hidden md:flex items-center space-x-8">
+            {/* Desktop Nav (Center) - active on lg and above */}
+            <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
               {navLinks.map((link: any) => {
                 const linkName = link.isCustom 
                   ? (language === 'id' ? link.labelId : link.labelEn)
@@ -126,7 +126,7 @@ export function Navbar() {
                     key={link.name}
                     href={link.href}
                     className={cn(
-                      "text-base font-semibold transition-colors hover:text-foreground",
+                      "text-sm xl:text-base font-semibold transition-colors hover:text-foreground",
                       activeSection === link.href.substring(1) ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
@@ -136,86 +136,113 @@ export function Navbar() {
               })}
             </div>
 
-            <div className="hidden md:flex items-center space-x-6">
-              <button onClick={toggleLanguage} className="p-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"><Globe className="w-5 h-5" /><span className="text-xs font-bold">{language.toUpperCase()}</span></button>
-              <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-                {theme === "dark" ? <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
+            {/* Desktop Controls (Right) */}
+            <div className="hidden lg:flex items-center space-x-3 xl:space-x-6">
+              <button onClick={toggleLanguage} className="p-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5" title="Switch Language">
+                <Globe className="w-4 h-4 xl:w-5 xl:h-5" />
+                <span className="text-xs font-bold">{language.toUpperCase()}</span>
+              </button>
+              <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Toggle Theme">
+                {theme === "dark" ? <svg className="w-4 h-4 xl:w-5 xl:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="w-4 h-4 xl:w-5 xl:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
               </button>
               <a
                 href="#contact"
-                className="group h-11 inline-flex items-center justify-center rounded-full bg-foreground text-background px-8 text-base font-bold transition-all hover:scale-105"
+                className="group h-10 xl:h-11 inline-flex items-center justify-center rounded-full bg-foreground text-background px-5 xl:px-8 text-sm xl:text-base font-bold transition-all hover:scale-105"
               >
                 <span className="mr-2">{(t.nav as any).talk || (language === 'id' ? 'Mari Bicara' : "Let's Talk")}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 xl:w-5 xl:h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </a>
             </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="md:hidden text-foreground p-2 rounded-full glass"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+            {/* Mobile & Tablet Menu Toggle (visible < lg) */}
+            <div className="flex items-center gap-2 lg:hidden">
+              <button onClick={toggleLanguage} className="p-2 text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                <Globe className="w-4 h-4" />
+                <span className="text-[11px] font-bold">{language.toUpperCase()}</span>
+              </button>
+              <button onClick={toggleTheme} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+                {theme === "dark" ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>}
+              </button>
+              <button
+                className="text-foreground p-2 rounded-full glass"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle Menu"
+              >
+                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-background/95 flex flex-col items-center justify-center"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-40 bg-background/98 backdrop-blur-2xl flex flex-col items-center justify-start overflow-y-auto px-6 pt-28 pb-16"
           >
-            <div className="flex flex-col items-center space-y-8 text-3xl font-light tracking-tight">
-              <button
-                onClick={() => {
-                  toggleLanguage();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-2 text-xl font-medium text-foreground mb-4 p-2 px-4 rounded-full glass"
-              >
-                <Globe className="w-5 h-5" />
-                <span>{t.nav.switchLanguage}</span>
-                <span className="text-sm font-bold opacity-60 ml-1">({language.toUpperCase()})</span>
-              </button>
-              <button
-                onClick={() => {
-                  toggleTheme();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-2 text-xl font-medium text-foreground mb-4 p-2 rounded-full glass"
-              >
-                {theme === "dark" ? (
-                  <><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg><span>{(t.nav as any).lightMode || 'Light Mode'}</span></>
-                ) : (
-                  <><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg><span>{(t.nav as any).darkMode || 'Dark Mode'}</span></>
-                )}
-              </button>
+            <div className="flex flex-col items-center space-y-6 sm:space-y-7 text-2xl sm:text-3xl font-light tracking-tight w-full max-w-sm">
+              <div className="flex items-center gap-3 mb-2">
+                <button
+                  onClick={() => {
+                    toggleLanguage();
+                  }}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-foreground py-2 px-4 rounded-full glass"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span>{language.toUpperCase()}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    toggleTheme();
+                  }}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-foreground py-2 px-4 rounded-full glass"
+                >
+                  {theme === "dark" ? (
+                    <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg><span>Light</span></>
+                  ) : (
+                    <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg><span>Dark</span></>
+                  )}
+                </button>
+              </div>
+
               {navLinks.map((link: any, i: number) => {
                 const linkName = link.isCustom 
                   ? (language === 'id' ? link.labelId : link.labelEn)
                   : (t.nav[link.href.substring(1) as keyof typeof t.nav] || link.name);
                 return (
                   <motion.a
-                    initial={{ y: 20, opacity: 0 }}
+                    initial={{ y: 15, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: i * 0.1 }}
+                    transition={{ delay: i * 0.05 }}
                     key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
-                      "transition-colors hover:text-primary",
-                      activeSection === link.href.substring(1) ? "text-foreground" : "text-muted-foreground"
+                      "py-1.5 transition-colors hover:text-primary text-center w-full",
+                      activeSection === link.href.substring(1) ? "text-foreground font-semibold" : "text-muted-foreground"
                     )}
                   >
                     {linkName}
                   </motion.a>
                 );
               })}
+
+              <motion.a
+                initial={{ y: 15, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: navLinks.length * 0.05 }}
+                href="#contact"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="mt-4 h-12 w-full inline-flex items-center justify-center rounded-full bg-foreground text-background px-8 text-base font-bold shadow-lg"
+              >
+                <span className="mr-2">{(t.nav as any).talk || (language === 'id' ? 'Mari Bicara' : "Let's Talk")}</span>
+                <ArrowRight className="w-5 h-5" />
+              </motion.a>
             </div>
           </motion.div>
         )}

@@ -21,6 +21,17 @@ export function Hero() {
   const firstPart = nameParts.slice(0, Math.ceil(nameParts.length / 2)).join(' ').toUpperCase();
   const secondPart = nameParts.slice(Math.ceil(nameParts.length / 2)).join(' ').toUpperCase();
 
+  const nameLength = name.length;
+  const mobileFontSize = nameLength > 24 
+    ? "text-[5vw]" 
+    : nameLength > 18 
+      ? "text-[6vw]" 
+      : nameLength > 14 
+        ? "text-[6.8vw]" 
+        : nameLength > 10 
+          ? "text-[8vw]" 
+          : "text-[9.5vw]";
+
   const greeting = language === 'id'
     ? (heroData?.greetingId || heroData?.greetingEn || "")
     : (heroData?.greetingEn || heroData?.greetingId || "");
@@ -33,7 +44,15 @@ export function Hero() {
     ? (heroData?.descriptionId || heroData?.descriptionEn || "")
     : (heroData?.descriptionEn || heroData?.descriptionId || "");
 
-  const resumeLink = heroData?.resumeUrl || "";
+  const rawResume = heroData?.resumeUrl?.trim() || "";
+  const isLocalhostLink = rawResume.includes("localhost") || rawResume.includes("127.0.0.1");
+  const resumeLink = (rawResume && !isLocalhostLink)
+    ? (rawResume.startsWith('/uploads/') 
+        ? `${API_URL}${rawResume}` 
+        : (rawResume.startsWith('http://') || rawResume.startsWith('https://') 
+            ? rawResume 
+            : `https://${rawResume}`))
+    : "";
 
   const profileImg = heroData?.profileImgUrl ? `${API_URL}${heroData.profileImgUrl}` : null;
 
@@ -44,16 +63,133 @@ export function Hero() {
   ];
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden w-full px-6 md:px-12 lg:px-24 2xl:px-32">
+    <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 sm:pt-28 pb-12 overflow-hidden w-full px-4 sm:px-6 md:px-12 lg:px-20 xl:px-28 2xl:px-32">
 
+      {/* ================= MOBILE HERO (< lg) ================= */}
+      <div className="lg:hidden flex flex-col items-center text-center w-full max-w-lg mx-auto z-10 pt-2 pb-6">
+        
+        {/* 1. Name Branding Header */}
+        {name && (
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="w-full flex justify-center items-center mb-3"
+          >
+            <h1 className="text-2xl sm:text-3xl font-black tracking-normal flex items-center justify-center gap-2 leading-none whitespace-nowrap">
+              <span
+                className="text-transparent"
+                style={{ WebkitTextStroke: '1px var(--fg-color)' }}
+              >
+                {firstPart}
+              </span>
+              <span className="text-foreground">
+                {secondPart}
+              </span>
+            </h1>
+          </motion.div>
+        )}
+
+        {/* 2. Greeting & Title */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-3 px-2"
+        >
+          {greeting && (
+            <p className="text-xs text-foreground/80 font-semibold uppercase tracking-widest mb-1">
+              {greeting}
+            </p>
+          )}
+          <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight leading-snug">
+            {headline}
+          </h2>
+        </motion.div>
+
+        {/* 3. Portrait Photo */}
+        {profileImg && (
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative my-1 flex justify-center items-center"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/10 to-transparent rounded-full blur-2xl -z-10 scale-90" />
+            <img
+              src={profileImg}
+              alt={name}
+              className="w-40 sm:w-48 h-auto max-h-[240px] sm:max-h-[280px] object-contain object-bottom grayscale hover:grayscale-0 transition-all duration-500 drop-shadow-xl"
+            />
+          </motion.div>
+        )}
+
+        {/* 4. Bio Description */}
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed my-2.5 px-3"
+        >
+          {description}
+        </motion.p>
+
+        {/* 5. CTA Buttons */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex items-center justify-center gap-2.5 w-full max-w-xs mx-auto my-2"
+        >
+          <a
+            href="#contact"
+            className="flex-1 inline-flex items-center justify-center rounded-full bg-foreground text-background px-4 py-2.5 text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
+          >
+            {(t.hero as any).collaborate || (language === 'id' ? "Mari berkolaborasi" : "Let's collaborate")}
+            <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+          </a>
+          {resumeLink && (
+            <a
+              href={resumeLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 inline-flex items-center justify-center rounded-full bg-background border-2 border-foreground text-foreground px-4 py-2.5 text-xs font-bold hover:scale-105 active:scale-95 transition-all"
+            >
+              {(t.hero as any).viewCv || (language === 'id' ? "Lihat CV" : "View CV")}
+            </a>
+          )}
+        </motion.div>
+
+        {/* 6. Social Links */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex flex-wrap items-center justify-center gap-2 w-full max-w-sm mx-auto mt-2"
+        >
+          {SOCIALS.map((social) => (
+            <a
+              key={social.name}
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-background/90 backdrop-blur-md border border-border rounded-full text-[11px] sm:text-xs font-semibold text-foreground hover:scale-105 active:scale-95 transition-all shadow-sm"
+            >
+              {social.icon} <span>{social.name}</span>
+            </a>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* ================= DESKTOP HERO (lg and above) ================= */}
       {/* Huge Background Text (Layer 1: Behind Image) */}
       {name && (
-        <div className="absolute top-[18%] md:top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-2 flex justify-center items-center pointer-events-none select-none z-0 overflow-visible">
+        <div className="hidden lg:flex absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-full px-2 justify-center items-center pointer-events-none select-none z-0 overflow-hidden">
           <motion.h1
             initial={{ y: 60, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[18vw] sm:text-[14vw] md:text-[11vw] lg:text-[9.5vw] font-black tracking-tighter flex items-center justify-center gap-2 md:gap-4 leading-none whitespace-nowrap"
+            className="text-[8.5vw] xl:text-[8vw] font-black tracking-tighter flex items-center justify-center gap-4 leading-none whitespace-nowrap"
           >
             <span
               className="text-transparent"
@@ -68,12 +204,12 @@ export function Hero() {
         </div>
       )}
 
-      {/* Main Container Layer (Layer 2: Image) */}
-      <div className="relative w-full h-full flex flex-col justify-end z-10 pt-[20vh]">
+      {/* Main Container Layer (Layer 2: Image & Content) */}
+      <div className="hidden lg:flex relative w-full h-full flex-col justify-end z-10 pt-[20vh]">
 
         {/* Person Portrait (Centered Bottom) */}
         {profileImg && (
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-16 md:translate-y-24 lg:translate-y-32 z-10 w-full max-w-[280px] md:max-w-[380px] lg:max-w-[420px]">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-20 lg:translate-y-28 z-10 w-full max-w-[380px] xl:max-w-[420px] pointer-events-auto">
             <motion.img
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -86,25 +222,25 @@ export function Hero() {
         )}
 
         {/* Floating Content Overlays */}
-        <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end md:items-start pb-12 md:pb-20 z-30 relative pointer-events-none">
+        <div className="w-full max-w-7xl mx-auto flex flex-row justify-between items-end pb-16 z-30 relative pointer-events-none">
 
           {/* Left Side: Bio & CTA */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full md:w-[35%] mb-10 md:mb-0 text-left mt-auto md:mt-0 pointer-events-auto"
+            className="w-[36%] text-left mt-auto pointer-events-auto"
           >
             {greeting && (
-              <p className="text-sm md:text-lg text-foreground/80 font-medium mb-2 uppercase tracking-widest">{greeting}</p>
+              <p className="text-base text-foreground/80 font-medium mb-2 uppercase tracking-widest">{greeting}</p>
             )}
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">{headline}</h2>
-            <p className="text-sm md:text-base text-muted-foreground mb-8 max-w-sm leading-relaxed">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight leading-tight">{headline}</h2>
+            <p className="text-base text-muted-foreground mb-8 max-w-md leading-relaxed">
               {description}
             </p>
             <div className="flex items-center gap-4">
-              <a href="#contact" className="inline-flex items-center justify-center rounded-full bg-foreground text-background px-6 py-3 text-sm font-semibold transition-transform hover:scale-105">
-                {(t.hero as any).collaborate || (language === 'id' ? "Mari berkolaborasi" : "Let's collaborate")} <ArrowUpRight className="w-4 h-4 ml-2" />
+              <a href="#contact" className="inline-flex items-center justify-center rounded-full bg-foreground text-background px-6 py-3 text-sm font-semibold transition-transform hover:scale-105 shadow-md">
+                {(t.hero as any).collaborate || (language === 'id' ? "Mari berkolaborasi" : "Let's collaborate")} <ArrowUpRight className="w-4 h-4 ml-1.5" />
               </a>
               {resumeLink && (
                 <a href={resumeLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-full bg-background border-2 border-foreground text-foreground px-6 py-3 text-sm font-semibold transition-transform hover:scale-105">
@@ -116,10 +252,10 @@ export function Hero() {
 
           {/* Right Side: Social Pills */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
+            initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="w-full md:w-[35%] flex flex-col items-start md:items-end gap-4 mt-auto md:mt-0 pointer-events-auto"
+            className="w-[36%] flex flex-col items-end gap-4 mt-auto pointer-events-auto"
           >
             {SOCIALS.map((social) => (
               <a
@@ -127,7 +263,7 @@ export function Hero() {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 px-8 py-3 bg-background border border-border rounded-full text-base font-semibold text-foreground hover:scale-105 hover:shadow-sm transition-all min-w-[180px] justify-center md:justify-start"
+                className="flex items-center gap-3 px-7 py-3 bg-background/90 backdrop-blur-md border border-border rounded-full text-base font-semibold text-foreground hover:scale-105 hover:shadow-md transition-all min-w-[180px] justify-start"
               >
                 {social.icon} <span className="flex-1 text-left">{social.name}</span>
               </a>
@@ -139,12 +275,12 @@ export function Hero() {
 
       {/* Huge Foreground Text (Layer 3: Outline on top of Image) */}
       {name && (
-        <div className="absolute top-[18%] md:top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-2 flex justify-center items-center pointer-events-none select-none z-20 overflow-visible">
+        <div className="hidden lg:flex absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-full px-2 justify-center items-center pointer-events-none select-none z-20 overflow-hidden">
           <motion.h1
             initial={{ y: 60, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="text-[18vw] sm:text-[14vw] md:text-[11vw] lg:text-[9.5vw] font-black tracking-tighter flex items-center justify-center gap-2 md:gap-4 leading-none whitespace-nowrap"
+            className="text-[8.5vw] xl:text-[8vw] font-black tracking-tighter flex items-center justify-center gap-4 leading-none whitespace-nowrap"
           >
             <span
               className="text-transparent"

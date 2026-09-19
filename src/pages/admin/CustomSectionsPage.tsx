@@ -197,12 +197,12 @@ export default function CustomSectionsPage() {
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Custom Sections</h1>
-          <p className="text-muted-foreground text-sm mt-1">Buat menu navigasi & konten baru secara bebas.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Custom Sections</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-1">Buat menu navigasi & konten baru secara bebas.</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02]">
+        <button onClick={openCreate} className="self-start sm:self-auto flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-foreground text-sm font-semibold transition-all hover:scale-[1.02] shadow-sm">
           <Plus className="w-4 h-4" /> Tambah Bagian
         </button>
       </div>
@@ -215,30 +215,30 @@ export default function CustomSectionsPage() {
           <p className="text-muted-foreground text-sm">Belum ada custom section.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {items.map(item => (
-            <div key={item.id} className={`admin-table-container p-5 transition-all group ${!item.isVisible ? 'opacity-50 border-dashed' : 'hover:border-border'}`}>
-              <div className="flex items-start justify-between gap-4">
+            <div key={item.id} className={`admin-table-container p-4 sm:p-5 transition-all group ${!item.isVisible ? 'opacity-50 border-dashed' : 'hover:border-border'}`}>
+              <div className="flex items-start justify-between gap-3 sm:gap-4">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-foreground font-semibold text-lg truncate">{item.titleId} / {item.titleEn}</h3>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                    <h3 className="text-foreground font-semibold text-base sm:text-lg truncate">{item.titleId} / {item.titleEn}</h3>
                     <span className="px-2 py-0.5 rounded text-[10px] bg-muted text-muted-foreground font-mono tracking-wider uppercase">#{item.slug}</span>
                   </div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="px-2 py-1 rounded-md text-xs bg-indigo-500/10 text-indigo-400 font-medium">Nav: {item.navLabelId} / {item.navLabelEn}</span>
                   </div>
-                  <p className="text-muted-foreground text-sm mt-3 line-clamp-2">
+                  <p className="text-muted-foreground text-xs sm:text-sm mt-2 sm:mt-3 line-clamp-2">
                     {item.contentId.startsWith('[') ? '[Daftar Kartu Grid]' : (item.contentId.startsWith('{') ? '[Konten Teks & Media]' : item.contentId)}
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 flex-shrink-0">
-                  <button onClick={() => toggleVisibility(item)} className={`p-2 rounded-lg transition-all ${item.isVisible ? 'text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/10' : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'}`} title={item.isVisible ? 'Sembunyikan' : 'Tampilkan'}>
+                <div className="flex flex-col gap-1.5 sm:gap-2 flex-shrink-0">
+                  <button onClick={() => toggleVisibility(item)} className={`p-1.5 sm:p-2 rounded-lg transition-all ${item.isVisible ? 'text-emerald-400/70 hover:text-emerald-400 hover:bg-emerald-500/10' : 'text-muted-foreground hover:text-muted-foreground hover:bg-muted'}`} title={item.isVisible ? 'Sembunyikan' : 'Tampilkan'}>
                     {item.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
-                  <button onClick={() => openEdit(item)} className="p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all">
+                  <button onClick={() => openEdit(item)} className="p-1.5 sm:p-2 rounded-lg text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all" title="Edit">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setDeleteId(item.id)} className="p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all">
+                  <button onClick={() => setDeleteId(item.id)} className="p-1.5 sm:p-2 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-all" title="Hapus">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -250,15 +250,15 @@ export default function CustomSectionsPage() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-          <div className="admin-form-container border border-border rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-6 border-b border-border flex-shrink-0">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <div className="admin-form-container border border-border rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col my-auto">
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border flex-shrink-0">
               <h2 className="text-foreground font-semibold">{editing ? 'Edit Section' : 'Tambah Section'}</h2>
               <button type="button" onClick={() => { setModalOpen(false); if (editId) setSearchParams({}); }} className="text-muted-foreground hover:text-muted-foreground"><X className="w-5 h-5" /></button>
             </div>
             
             <form onSubmit={handleSave} className="flex flex-col overflow-hidden h-full">
-              <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs text-muted-foreground uppercase block mb-1.5">Slug (Tanpa Spasi)</label>

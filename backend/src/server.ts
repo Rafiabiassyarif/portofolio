@@ -106,6 +106,15 @@ app.listen(PORT, async () => {
         dateEn: 'Nov 2025',
       },
     });
+
+    // Auto-clean legacy invalid resumeUrl pointing to localhost admin panel
+    const hero = await prisma.heroContent.findFirst();
+    if (hero && hero.resumeUrl && hero.resumeUrl.includes('localhost')) {
+      await prisma.heroContent.update({
+        where: { id: hero.id },
+        data: { resumeUrl: null },
+      });
+    }
   } catch (err) {
     console.error('Disk upload or certification migration error:', err);
   }

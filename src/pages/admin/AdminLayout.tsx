@@ -53,7 +53,7 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside className={`fixed lg:sticky top-0 left-0 h-screen z-40 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         {/* Logo */}
-        <div className="p-6 border-b border-border">
+        <div className="p-4 sm:p-6 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
               <LayoutDashboard className="w-5 h-5 text-indigo-400" />
@@ -63,6 +63,13 @@ export default function AdminLayout() {
               <div className="text-muted-foreground text-xs">Admin Panel</div>
             </div>
           </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Navigation */}
@@ -163,7 +170,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 overflow-auto min-w-0">
           <React.Suspense fallback={
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />

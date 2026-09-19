@@ -12,13 +12,8 @@ export default function AdminLoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Pastikan form selalu ada di layar meski di-scroll
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,13 +36,13 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-slate-950 text-slate-100 font-sans overflow-hidden">
+    <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-slate-950 text-slate-100 font-sans overflow-y-auto p-4 sm:p-6">
       {/* Premium Background Effects */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Login Card */}
-      <div className="relative w-full max-w-md mx-4 bg-muted backdrop-blur-2xl border border-border rounded-[2rem] p-8 md:p-10 shadow-2xl">
+      <div className="relative w-full max-w-md my-auto bg-muted backdrop-blur-2xl border border-border rounded-[1.75rem] sm:rounded-[2rem] p-6 sm:p-8 md:p-10 shadow-2xl">
         
         {/* Header */}
         <div className="text-center mb-10">

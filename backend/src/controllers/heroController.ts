@@ -13,7 +13,21 @@ export const getHero = async (req: Request, res: Response) => {
 
 export const updateHero = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { greetingId, greetingEn, name, titleId, titleEn, descriptionId, descriptionEn, instagramUrl, linkedinUrl, githubUrl, removeProfileImg, removeResume } = req.body;
+    const { 
+      greetingId, 
+      greetingEn, 
+      name, 
+      titleId, 
+      titleEn, 
+      descriptionId, 
+      descriptionEn, 
+      instagramUrl, 
+      linkedinUrl, 
+      githubUrl, 
+      resumeUrl: inputResumeUrl,
+      removeProfileImg, 
+      removeResume 
+    } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     
     let existing = await prisma.heroContent.findFirst();
@@ -36,6 +50,8 @@ export const updateHero = async (req: Request, res: Response): Promise<any> => {
     } else if (removeResume === 'true' || removeResume === true) {
       await deleteMedia(existing.resumeUrl);
       resumeUrl = null;
+    } else if (inputResumeUrl !== undefined) {
+      resumeUrl = inputResumeUrl ? inputResumeUrl.trim() : null;
     }
 
     const data = { 
@@ -46,9 +62,9 @@ export const updateHero = async (req: Request, res: Response): Promise<any> => {
       titleEn: titleEn !== undefined ? (titleEn || titleId || existing.titleEn) : existing.titleEn, 
       descriptionId: descriptionId !== undefined ? (descriptionId || descriptionEn || existing.descriptionId) : existing.descriptionId, 
       descriptionEn: descriptionEn !== undefined ? (descriptionEn || descriptionId || existing.descriptionEn) : existing.descriptionEn, 
-      instagramUrl, 
-      linkedinUrl, 
-      githubUrl, 
+      instagramUrl: instagramUrl !== undefined ? (instagramUrl ? instagramUrl.trim() : null) : existing.instagramUrl, 
+      linkedinUrl: linkedinUrl !== undefined ? (linkedinUrl ? linkedinUrl.trim() : null) : existing.linkedinUrl, 
+      githubUrl: githubUrl !== undefined ? (githubUrl ? githubUrl.trim() : null) : existing.githubUrl, 
       resumeUrl, 
       profileImgUrl 
     };
